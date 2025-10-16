@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 6, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"","debugId":null}},
+    {"offset": {"line": 66, "column": 0}, "map": {"version":3,"sources":["file:///home/hardik/rajashai/app/api/admin/login/route.ts"],"sourcesContent":["import { NextResponse } from 'next/server';\nimport { cookies } from 'next/headers';\n\nexport async function POST(req: Request) {\n  const { password } = await req.json();\n  if (!password) return NextResponse.json({ error: 'Password required' }, { status: 400 });\n  if (password !== process.env.ADMIN_PASSWORD) {\n    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });\n  }\nconst c = await cookies();\nc.set(\"isAdmin\", \"1\", { httpOnly: true, path: \"/\", maxAge: 60 * 60 * 6 });\n\n  return NextResponse.json({ ok: true });\n}\n"],"names":[],"mappings":";;;AAAA;AACA;;;AAEO,eAAe,KAAK,GAAY;IACrC,MAAM,EAAE,QAAQ,EAAE,GAAG,MAAM,IAAI,IAAI;IACnC,IAAI,CAAC,UAAU,OAAO,gIAAA,CAAA,eAAY,CAAC,IAAI,CAAC;QAAE,OAAO;IAAoB,GAAG;QAAE,QAAQ;IAAI;IACtF,IAAI,aAAa,QAAQ,GAAG,CAAC,cAAc,EAAE;QAC3C,OAAO,gIAAA,CAAA,eAAY,CAAC,IAAI,CAAC;YAAE,OAAO;QAAe,GAAG;YAAE,QAAQ;QAAI;IACpE;IACF,MAAM,IAAI,MAAM,CAAA,GAAA,iIAAA,CAAA,UAAO,AAAD;IACtB,EAAE,GAAG,CAAC,WAAW,KAAK;QAAE,UAAU;QAAM,MAAM;QAAK,QAAQ,KAAK,KAAK;IAAE;IAErE,OAAO,gIAAA,CAAA,eAAY,CAAC,IAAI,CAAC;QAAE,IAAI;IAAK;AACtC","debugId":null}}]
+}

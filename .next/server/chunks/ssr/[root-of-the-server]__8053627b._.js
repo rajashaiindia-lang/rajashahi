@@ -430,7 +430,7 @@ function DateRangeCell({ start, end }) {
 }
 function MonthlyResultsTable({ month }) {
     const mm = month ?? new Date().toISOString().slice(0, 7);
-    const { data } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"])(`/api/result/history?month=${mm}`, fetcher);
+    const { data } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"])('/api/result/history?weeks=6&market=KALYAN', fetcher);
     const rows = groupIntoWeeks(data?.items ?? []);
     if (!data) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -438,7 +438,7 @@ function MonthlyResultsTable({ month }) {
             children: "Loading chart…"
         }, void 0, false, {
             fileName: "[project]/components/MonthlyResultsTable.tsx",
-            lineNumber: 83,
+            lineNumber: 87,
             columnNumber: 7
         }, this);
     }
@@ -461,19 +461,19 @@ function MonthlyResultsTable({ month }) {
                                     end: end
                                 }, void 0, false, {
                                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                                    lineNumber: 106,
+                                    lineNumber: 110,
                                     columnNumber: 19
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/MonthlyResultsTable.tsx",
-                                lineNumber: 105,
+                                lineNumber: 109,
                                 columnNumber: 17
                             }, this),
                             row.map((it, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(DayCell, {
                                     it: it
                                 }, `${it.sessionDate}-${i}`, false, {
                                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                                    lineNumber: 110,
+                                    lineNumber: 114,
                                     columnNumber: 19
                                 }, this)),
                             Array.from({
@@ -482,29 +482,29 @@ function MonthlyResultsTable({ month }) {
                                     className: "rounded-[6px] border border-dashed border-black/30 bg-[#fffdf6] min-h-[56px] md:min-h-[64px]"
                                 }, `pad-${weekIdx}-${i}`, false, {
                                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                                    lineNumber: 115,
+                                    lineNumber: 119,
                                     columnNumber: 19
                                 }, this))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/MonthlyResultsTable.tsx",
-                        lineNumber: 104,
+                        lineNumber: 108,
                         columnNumber: 15
                     }, this)
                 }, `week-${weekIdx}`, false, {
                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                    lineNumber: 98,
+                    lineNumber: 102,
                     columnNumber: 13
                 }, this);
             })
         }, void 0, false, {
             fileName: "[project]/components/MonthlyResultsTable.tsx",
-            lineNumber: 92,
+            lineNumber: 96,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/MonthlyResultsTable.tsx",
-        lineNumber: 90,
+        lineNumber: 94,
         columnNumber: 5
     }, this);
 }
