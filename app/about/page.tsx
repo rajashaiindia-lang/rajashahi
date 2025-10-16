@@ -115,7 +115,7 @@ export default function AboutPage() {
             <div className="space-y-2">
               <div className="text-3xl">🌐</div>
               <h4 className="font-semibold text-gray-300">Website</h4>
-              <p className="text-sm text-gray-400">www.rajashahi.com</p>
+              <p className="text-sm text-gray-400">www.rajashahi.in</p>
             </div>
           </div>
         </div>
