@@ -1,0 +1,7 @@
+{
+  "/api/monthly-results/route": "app/api/monthly-results/route.js",
+  "/api/result/history/route": "app/api/result/history/route.js",
+  "/api/result/latest/route": "app/api/result/latest/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js"
+}

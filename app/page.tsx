@@ -95,11 +95,11 @@ export default function Page() {
         </div>
 
         <div className="my-6" />
-        <JodiMatrix winner={latest?.jodi ?? null} />
+      <MonthlyResultsTable />
         <div id="bottom" className="h-12" />
       </div>
 
-      <MonthlyResultsTable />
+     
 
       {/* Scroll to Top Button */}
       <button
