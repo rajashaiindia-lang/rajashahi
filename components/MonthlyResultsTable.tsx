@@ -29,7 +29,7 @@ function groupIntoWeeks(items: Item[]) {
 function PannaColumn({ panna }: { panna?: string }) {
   const p = (panna ?? '   ').padEnd(3, ' ');
   return (
-    <div className="flex flex-col items-center text-[9px] leading-3 text-yellow-800/90 tracking-tight">
+    <div className="flex flex-col items-center text-[8px] md:text-[9px] leading-3 text-yellow-800/90 tracking-tight">
       <span>{p[0] ?? ''}</span>
       <span>{p[1] ?? ''}</span>
       <span>{p[2] ?? ''}</span>
@@ -40,12 +40,11 @@ function PannaColumn({ panna }: { panna?: string }) {
 function DayCell({ it }: { it: Item }) {
   const closed = it.status === 'CLOSED' && it.jodi;
   return (
-    <div className="relative bg-[#fffdf6] rounded-[6px] border border-black/40 shadow-[inset_0_1px_0_rgba(0,0,0,0.12)] px-1.5 pt-1.5 pb-2">
-  
-      <div className="flex items-center justify-center gap-1.5">
+    <div className="relative bg-[#fffdf6] rounded-[6px] border border-black/40 shadow-[inset_0_1px_0_rgba(0,0,0,0.12)] px-1 pt-1 pb-1.5 md:px-1.5 md:pt-1.5 md:pb-2 min-h-[56px] md:min-h-[64px] flex items-center justify-center">
+      <div className="flex items-center justify-center gap-1 md:gap-1.5">
         <PannaColumn panna={it.openingPanna} />
         <div
-          className={`min-w-[34px] text-center font-extrabold text-[16px] leading-5 ${
+          className={`min-w-[30px] md:min-w-[34px] text-center font-extrabold text-[14px] md:text-[16px] leading-5 ${
             closed ? 'text-red-600' : 'text-gray-400'
           }`}
           title={closed ? `Jodi ${it.jodi}` : 'Pending'}
@@ -60,13 +59,13 @@ function DayCell({ it }: { it: Item }) {
 
 function DateRangeCell({ start, end }: { start?: string; end?: string }) {
   return (
-    <div className="relative bg-[#fffdf6] rounded-[6px] border border-black/40 shadow-[inset_0_1px_0_rgba(0,0,0,0.12)] px-1.5 pt-1.5 pb-2 flex items-center justify-center">
+    <div className="relative bg-[#fffdf6] rounded-[6px] border border-black/40 shadow-[inset_0_1px_0_rgba(0,0,0,0.12)] px-1 pt-1 pb-1.5 md:px-1.5 md:pt-1.5 md:pb-2 min-h-[56px] md:min-h-[64px] flex items-center justify-center">
       <div className="flex flex-col items-center leading-3">
-        <div className="text-[9px] text-yellow-800/90 font-medium">
+        <div className="text-[9px] md:text-[10px] text-yellow-800/90 font-medium">
           {start ? ddmmyy(start) : ''}
         </div>
-        <div className="text-[9px] text-black/80 italic">to</div>
-        <div className="text-[9px] text-yellow-800/90 font-medium">
+        <div className="text-[9px] md:text-[10px] text-black/80 italic">to</div>
+        <div className="text-[9px] md:text-[10px] text-yellow-800/90 font-medium">
           {end ? ddmmyy(end) : ''}
         </div>
       </div>
@@ -88,29 +87,34 @@ export default function MonthlyResultsTable({ month }: { month?: string }) {
   }
 
   return (
-    <section className="max-w-5xl mx-auto px-3 pb-8">
-      {/* Single outer purple frame for the whole month */}
+    <section className="max-w-5xl mx-auto px-2 md:px-3 pb-8">
+      {/* Single outer purple frame */}
       <div className="rounded-md border-[6px] border-purple-700 bg-[#fffdf6] shadow-[0_2px_10px_rgba(0,0,0,0.25)] overflow-hidden">
         {rows.map((row, weekIdx) => {
           const start = row[0]?.sessionDate;
           const end = row[row.length - 1]?.sessionDate;
 
           return (
-            <div key={`week-${weekIdx}`} className="px-3 py-2">
-              {/* Row grid: 1 date-range cell + 6 day cells */}
-              <div className="grid grid-cols-7 gap-1">
-                <DateRangeCell start={start} end={end} />
+            <div key={`week-${weekIdx}`} className="px-2 md:px-3 py-2">
+              {/* Responsive grid:
+                    base: 3 cols (date spans 3)
+                    sm:   4 cols (date spans 1)
+                    md+:  7 cols (date spans 1)
+               */}
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-1">
+                <div className="col-span-3 sm:col-span-1">
+                  <DateRangeCell start={start} end={end} />
+                </div>
 
                 {row.map((it, i) => (
                   <DayCell key={`${it.sessionDate}-${i}`} it={it} />
                 ))}
 
-                {/* pad incomplete last week to keep the row width consistent */}
+                {/* pad for incomplete rows */}
                 {Array.from({ length: Math.max(0, 6 - row.length) }, (_, i) => (
                   <div
                     key={`pad-${weekIdx}-${i}`}
-                    className="rounded-[6px] border border-dashed border-black/30 bg-[#fffdf6]"
-                    style={{ minHeight: 64 }}
+                    className="rounded-[6px] border border-dashed border-black/30 bg-[#fffdf6] min-h-[56px] md:min-h-[64px]"
                   />
                 ))}
               </div>
