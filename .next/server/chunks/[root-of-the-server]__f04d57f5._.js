@@ -254,7 +254,7 @@ async function POST(req) {
         status: 401
     });
     const body = await req.json().catch(()=>({}));
-    const { sessionDate, market = 'DEMO', openingTime = DEFAULT_OPEN, closingTime = DEFAULT_CLOSE, roundId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$helpers$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["generateRoundId"])() } = body || {};
+    const { sessionDate, market = 'KALYAN', openingTime = DEFAULT_OPEN, closingTime = DEFAULT_CLOSE, roundId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$helpers$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["generateRoundId"])() } = body || {};
     if (!/^\d{4}-\d{2}-\d{2}$/.test(sessionDate || '')) {
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             error: 'sessionDate (YYYY-MM-DD) required'

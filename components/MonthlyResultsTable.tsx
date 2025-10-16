@@ -75,8 +75,8 @@ function DateRangeCell({ start, end }: { start?: string; end?: string }) {
 
 export default function MonthlyResultsTable({ month }: { month?: string }) {
   const mm = month ?? new Date().toISOString().slice(0, 7);
- const { data } = useSWR<{ items: Item[] }>(
-  '/api/result/history?weeks=6&market=KALYAN',
+const { data } = useSWR<{ items: Item[] }>(
+  '/api/result/history?weeks=24&market=KALYAN',
   fetcher
 );
 

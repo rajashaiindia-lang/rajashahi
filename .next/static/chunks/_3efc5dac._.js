@@ -439,7 +439,7 @@ function MonthlyResultsTable(param) {
     let { month } = param;
     _s();
     const mm = month !== null && month !== void 0 ? month : new Date().toISOString().slice(0, 7);
-    const { data } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"])('/api/result/history?weeks=6&market=KALYAN', fetcher);
+    const { data } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"])('/api/result/history?weeks=24&market=KALYAN', fetcher);
     var _data_items;
     const rows = groupIntoWeeks((_data_items = data === null || data === void 0 ? void 0 : data.items) !== null && _data_items !== void 0 ? _data_items : []);
     if (!data) {

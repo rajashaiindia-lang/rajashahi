@@ -50,7 +50,7 @@ export default function AdminPanel() {
       const r = await fetch('/api/round/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionDate, market: 'DEMO', openingTime, closingTime }),
+        body: JSON.stringify({ sessionDate, market: 'KALYAN', openingTime, closingTime }),
       });
       const d = await r.json();
       if (!r.ok) { setErr(d.error || 'Failed to start round'); return; }

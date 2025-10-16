@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const {
     sessionDate,            // 'YYYY-MM-DD'
-    market = 'DEMO',
+    market = 'KALYAN',
     openingTime = DEFAULT_OPEN,
     closingTime = DEFAULT_CLOSE,
     roundId = generateRoundId(),

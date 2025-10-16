@@ -65,7 +65,7 @@ function AdminPanel() {
                 },
                 body: JSON.stringify({
                     sessionDate,
-                    market: 'DEMO',
+                    market: 'KALYAN',
                     openingTime,
                     closingTime
                 })
