@@ -1,13 +1,16 @@
+// components/MonthlyResultsTable.tsx
 'use client';
 
 import useSWR from 'swr';
 
 type Item = {
   sessionDate: string;
-  openingPanna?: string;
-  closingPanna?: string;
-  jodi?: string;
-  status: 'READY' | 'OPENING_PUBLISHED' | 'CLOSED';
+  dayPanna?: string | null;
+  dayDigit?: number | null;
+  nightPanna?: string | null;
+  nightDigit?: number | null;
+  jodi?: string | null;
+  status: 'READY' | 'DAY_PUBLISHED' | 'CLOSED';
 };
 
 const fetcher = (u: string) => fetch(u).then(r => r.json());
@@ -23,10 +26,11 @@ function groupIntoWeeks(items: Item[]) {
   const only = items.filter(i => !isSunday(i.sessionDate));
   const rows: Item[][] = [];
   for (let i = 0; i < only.length; i += 6) rows.push(only.slice(i, i + 6));
-  return rows;
+  // Keep only the most recent 24 rows (≈ 6 months)
+  return rows.length > 24 ? rows.slice(-24) : rows;
 }
 
-function PannaColumn({ panna }: { panna?: string }) {
+function PannaColumn({ panna }: { panna?: string | null }) {
   const p = (panna ?? '   ').padEnd(3, ' ');
   return (
     <div className="flex flex-col items-center text-[8px] md:text-[9px] leading-3 text-yellow-800/90 tracking-tight">
@@ -38,20 +42,27 @@ function PannaColumn({ panna }: { panna?: string }) {
 }
 
 function DayCell({ it }: { it: Item }) {
-  const closed = it.status === 'CLOSED' && it.jodi;
+  const haveDay = it.dayDigit != null && it.dayPanna != null;
+  const haveNight = it.nightDigit != null && it.nightPanna != null;
+  const closed = it.status === 'CLOSED' && haveDay && haveNight;
+  const center = closed ? (it.jodi ?? `${it.dayDigit}${it.nightDigit}`) : '—';
+
   return (
     <div className="relative bg-[#fffdf6] rounded-[6px] border border-black/40 shadow-[inset_0_1px_0_rgba(0,0,0,0.12)] px-1 pt-1 pb-1.5 md:px-1.5 md:pt-1.5 md:pb-2 min-h-[56px] md:min-h-[64px] flex items-center justify-center">
       <div className="flex items-center justify-center gap-1 md:gap-1.5">
-        <PannaColumn panna={it.openingPanna} />
+        {/* left = DAY panna */}
+        <PannaColumn panna={it.dayPanna} />
+        {/* center = JODI when both published */}
         <div
           className={`min-w-[30px] md:min-w-[34px] text-center font-extrabold text-[14px] md:text-[16px] leading-5 ${
             closed ? 'text-red-600' : 'text-gray-400'
           }`}
-          title={closed ? `Jodi ${it.jodi}` : 'Pending'}
+          title={closed ? `Jodi ${center}` : 'Pending'}
         >
-          {closed ? it.jodi : '—'}
+          {center}
         </div>
-        <PannaColumn panna={it.closingPanna} />
+        {/* right = NIGHT panna */}
+        <PannaColumn panna={it.nightPanna} />
       </div>
     </div>
   );
@@ -74,11 +85,11 @@ function DateRangeCell({ start, end }: { start?: string; end?: string }) {
 }
 
 export default function MonthlyResultsTable({ month }: { month?: string }) {
-  const mm = month ?? new Date().toISOString().slice(0, 7);
-const { data } = useSWR<{ items: Item[] }>(
-  '/api/result/history?weeks=24&market=KALYAN',
-  fetcher
-);
+  const { data } = useSWR<{ items: Item[] }>(
+    // ⬇️ new endpoint; no market param
+   '/api/result/history?weeks=52',
+    fetcher
+  );
 
   const rows = groupIntoWeeks(data?.items ?? []);
 
@@ -92,19 +103,13 @@ const { data } = useSWR<{ items: Item[] }>(
 
   return (
     <section className="max-w-5xl mx-auto px-2 md:px-3 pb-8">
-      {/* Single outer purple frame */}
       <div className="rounded-md border-[6px] border-purple-700 bg-[#fffdf6] shadow-[0_2px_10px_rgba(0,0,0,0.25)] overflow-hidden">
-        {rows.map((row, weekIdx) => {
+       {[...rows].reverse().map((row, weekIdx) => {
           const start = row[0]?.sessionDate;
           const end = row[row.length - 1]?.sessionDate;
 
           return (
             <div key={`week-${weekIdx}`} className="px-2 md:px-3 py-2">
-              {/* Responsive grid:
-                    base: 3 cols (date spans 3)
-                    sm:   4 cols (date spans 1)
-                    md+:  7 cols (date spans 1)
-               */}
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-1">
                 <div className="col-span-3 sm:col-span-1">
                   <DateRangeCell start={start} end={end} />
@@ -114,7 +119,6 @@ const { data } = useSWR<{ items: Item[] }>(
                   <DayCell key={`${it.sessionDate}-${i}`} it={it} />
                 ))}
 
-                {/* pad for incomplete rows */}
                 {Array.from({ length: Math.max(0, 6 - row.length) }, (_, i) => (
                   <div
                     key={`pad-${weekIdx}-${i}`}

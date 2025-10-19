@@ -118,38 +118,33 @@ const RoundSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoo
         required: true,
         match: /^\d{4}-\d{2}-\d{2}$/
     },
-    market: {
-        type: String,
-        default: 'KALYAN',
-        required: true
-    },
-    openingTime: {
+    dayTime: {
         type: String,
         required: true,
         match: timeHHmm
     },
-    closingTime: {
+    nightTime: {
         type: String,
         required: true,
         match: timeHHmm
     },
-    openingPanna: {
+    dayPanna: {
         type: String,
         match: panna3,
         default: undefined
     },
-    openingDigit: {
+    dayDigit: {
         type: Number,
         min: 0,
         max: 9,
         default: undefined
     },
-    closingPanna: {
+    nightPanna: {
         type: String,
         match: panna3,
         default: undefined
     },
-    closingDigit: {
+    nightDigit: {
         type: Number,
         min: 0,
         max: 9,
@@ -165,6 +160,7 @@ const RoundSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoo
         enum: [
             'READY',
             'OPENING_PUBLISHED',
+            'DAY_PUBLISHED',
             'CLOSED'
         ],
         default: 'READY',
@@ -173,18 +169,44 @@ const RoundSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoo
 }, {
     timestamps: true
 });
-// Helpful unique constraint to avoid duplicate market-day sessions:
 RoundSchema.index({
-    market: 1,
     sessionDate: 1
 }, {
     unique: true
+});
+// models/Round.ts (add this BEFORE export default)
+RoundSchema.pre('validate', function(next) {
+    // @ts-ignore – tolerate legacy fields
+    const openingTime = this.openingTime;
+    // @ts-ignore
+    const closingTime = this.closingTime;
+    if (!this.dayTime && openingTime) this.dayTime = openingTime;
+    if (!this.nightTime && closingTime) this.nightTime = closingTime;
+    // Legacy result fields (best-effort)
+    // @ts-ignore
+    const openingPanna = this.openingPanna;
+    // @ts-ignore
+    const openingDigit = this.openingDigit;
+    // @ts-ignore
+    const closingPanna = this.closingPanna;
+    // @ts-ignore
+    const closingDigit = this.closingDigit;
+    if (!this.dayPanna && openingPanna) this.dayPanna = openingPanna;
+    if (this.dayDigit == null && openingDigit != null) this.dayDigit = openingDigit;
+    if (!this.nightPanna && closingPanna) this.nightPanna = closingPanna;
+    if (this.nightDigit == null && closingDigit != null) this.nightDigit = closingDigit;
+    // Status bridge: allow old 'OPENING_PUBLISHED'
+    // (you already added the enum, this is just a safety)
+    // no mapping needed unless you want to force-convert:
+    // if (this.status === 'OPENING_PUBLISHED') this.status = 'DAY_PUBLISHED';
+    next();
 });
 const __TURBOPACK__default__export__ = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["models"].Round || (0, __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["model"])('Round', RoundSchema);
 }),
 "[project]/app/api/result/history/route.ts [app-route] (ecmascript)": ((__turbopack_context__) => {
 "use strict";
 
+// app/api/result/history/route.ts
 __turbopack_context__.s({
     "GET": ()=>GET
 });
@@ -194,13 +216,12 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$a
 ;
 ;
 ;
-// Month helpers
 function monthBounds(yyyyMM) {
     const [Y, M] = yyyyMM.split('-').map(Number);
     const start = new Date(Date.UTC(Y, M - 1, 1, 0, 0, 0));
     const next = new Date(Date.UTC(Y, M, 1, 0, 0, 0));
-    const lo = start.toISOString().slice(0, 10); // inclusive
-    const hi = next.toISOString().slice(0, 10); // exclusive
+    const lo = start.toISOString().slice(0, 10);
+    const hi = next.toISOString().slice(0, 10);
     return {
         lo,
         hi
@@ -216,12 +237,9 @@ async function GET(req) {
     const { searchParams } = new URL(req.url);
     const month = searchParams.get('month'); // e.g. '2025-10'
     const limit = Number(searchParams.get('limit') ?? 0);
-    const weeksParam = searchParams.get('weeks'); // e.g. '6'
-    const endParam = searchParams.get('end'); // e.g. '2025-10-16'
-    const market = searchParams.get('market') ?? 'KALYAN';
-    const filter = {
-        market
-    };
+    const weeksParam = searchParams.get('weeks'); // e.g. '24'
+    const endParam = searchParams.get('end'); // e.g. '2025-10-18'
+    const filter = {};
     let lo;
     let hi;
     if (month) {
@@ -229,39 +247,35 @@ async function GET(req) {
         lo = b.lo;
         hi = b.hi;
     } else if (weeksParam) {
-        // Allow up to 52 weeks (~1 year)
-        const weeks = Math.max(1, Math.min(52, Number(weeksParam) || 6));
-        let endDateStr = endParam;
-        if (!endDateStr) {
-            // 👇 Explicitly type the lean() result to avoid union [] | {} typings
-            const latest = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({
-                market
-            }).sort({
-                sessionDate: -1
-            }).select('sessionDate').lean();
-            if (!latest) return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                items: []
-            });
-            endDateStr = latest.sessionDate;
-        }
+        const weeks = Math.max(1, Math.min(52, Number(weeksParam) || 24));
+        // latest sessionDate as end if not provided
+        const latest = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({}).sort({
+            sessionDate: -1
+        }).select('sessionDate').lean();
+        const endDateStr = endParam || latest?.sessionDate;
+        if (!endDateStr) return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            items: []
+        });
         const end = new Date(`${endDateStr}T00:00:00Z`);
-        const start = addDays(end, -(weeks * 7) + 1); // inclusive
+        const start = addDays(end, -(weeks * 7) + 1);
         lo = start.toISOString().slice(0, 10);
-        hi = addDays(end, 1).toISOString().slice(0, 10); // exclusive
+        hi = addDays(end, 1).toISOString().slice(0, 10);
     }
-    if (lo && hi) {
-        filter.sessionDate = {
-            $gte: lo,
-            $lt: hi
-        };
-    }
-    // 👇 Also type the array returned by lean()
+    if (lo && hi) filter.sessionDate = {
+        $gte: lo,
+        $lt: hi
+    };
     const rounds = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find(filter).sort({
         sessionDate: 1
-    }).select('sessionDate openingPanna closingPanna openingDigit closingDigit jodi status market').lean();
+    }).select('sessionDate dayPanna dayDigit nightPanna nightDigit jodi status').lean();
     const items = month || weeksParam || !limit ? rounds : rounds.slice(-limit);
+    // Bridge legacy OPENING_PUBLISHED -> DAY_PUBLISHED for the UI
+    const mapped = items.map((it)=>({
+            ...it,
+            status: it.status === 'OPENING_PUBLISHED' ? 'DAY_PUBLISHED' : it.status
+        }));
     return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-        items
+        items: mapped
     });
 }
 }),

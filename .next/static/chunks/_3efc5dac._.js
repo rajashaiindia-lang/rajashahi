@@ -15,7 +15,7 @@ var _s = __turbopack_context__.k.signature();
 'use client';
 ;
 function ResultRibbon(param) {
-    let { sessionDate, formatted, jodi, onRefresh } = param;
+    let { side, sessionDate, dayPanna, dayDigit, nightPanna, nightDigit, jodi, onRefresh } = param;
     _s();
     const [spinning, setSpinning] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const refresh = async ()=>{
@@ -27,60 +27,104 @@ function ResultRibbon(param) {
             setSpinning(false);
         }
     };
+    // What to show on the big line
+    const mainLine = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "ResultRibbon.useMemo[mainLine]": ()=>{
+            if (side === 'day') {
+                const has = dayDigit != null && dayPanna != null;
+                return has ? "(".concat(dayPanna, ") ").concat(dayDigit) : '(—) —';
+            } else {
+                const has = nightDigit != null && nightPanna != null;
+                return has ? "(".concat(nightPanna, ") ").concat(nightDigit) : '(—) —';
+            }
+        }
+    }["ResultRibbon.useMemo[mainLine]"], [
+        side,
+        dayPanna,
+        dayDigit,
+        nightPanna,
+        nightDigit
+    ]);
+    // Jodi appears only when both digits exist
+    const jodiText = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "ResultRibbon.useMemo[jodiText]": ()=>{
+            if (dayDigit == null || nightDigit == null) return null;
+            return jodi !== null && jodi !== void 0 ? jodi : "".concat(dayDigit).concat(nightDigit);
+        }
+    }["ResultRibbon.useMemo[jodiText]"], [
+        dayDigit,
+        nightDigit,
+        jodi
+    ]);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "rounded border-2 border-red-700 bg-yellow-300 text-center py-5 px-3 shadow-[inset_0_0_0_2px_rgba(255,0,0,0.3)]",
         children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "flex items-center justify-center gap-2 mb-1",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                    className: "inline-block text-xs font-extrabold px-2 py-0.5 rounded-full border ".concat(side === 'day' ? 'bg-yellow-400 text-black border-yellow-700' : 'bg-purple-400 text-black border-purple-700'),
+                    children: side.toUpperCase()
+                }, void 0, false, {
+                    fileName: "[project]/components/ResultRibbon.tsx",
+                    lineNumber: 58,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/components/ResultRibbon.tsx",
+                lineNumber: 57,
+                columnNumber: 7
+            }, this),
             sessionDate && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                 className: "text-sm text-gray-700 mt-1",
                 children: sessionDate
             }, void 0, false, {
                 fileName: "[project]/components/ResultRibbon.tsx",
-                lineNumber: 25,
+                lineNumber: 69,
                 columnNumber: 23
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                className: "mt-1 text-xl font-bold font-mono",
-                children: formatted || '(—) — | — (—)'
+                className: "mt-1 text-2xl font-bold font-mono",
+                children: mainLine
             }, void 0, false, {
                 fileName: "[project]/components/ResultRibbon.tsx",
-                lineNumber: 26,
+                lineNumber: 71,
                 columnNumber: 7
             }, this),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            jodiText && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                 className: "text-sm text-gray-700 mt-1",
                 children: [
                     "Jodi: ",
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                         className: "font-semibold",
-                        children: jodi !== null && jodi !== void 0 ? jodi : '—'
+                        children: jodiText
                     }, void 0, false, {
                         fileName: "[project]/components/ResultRibbon.tsx",
-                        lineNumber: 27,
-                        columnNumber: 55
+                        lineNumber: 76,
+                        columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/ResultRibbon.tsx",
-                lineNumber: 27,
-                columnNumber: 7
+                lineNumber: 75,
+                columnNumber: 9
             }, this),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+            onRefresh && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 onClick: refresh,
                 className: "mt-3 inline-block rounded-full bg-yellow-400/90 px-4 py-1.5 text-sm font-semibold shadow hover:bg-yellow-400 border border-yellow-600",
                 children: spinning ? 'Refreshing…' : 'Refresh Result'
             }, void 0, false, {
                 fileName: "[project]/components/ResultRibbon.tsx",
-                lineNumber: 28,
-                columnNumber: 7
+                lineNumber: 81,
+                columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/ResultRibbon.tsx",
-        lineNumber: 23,
+        lineNumber: 55,
         columnNumber: 5
     }, this);
 }
-_s(ResultRibbon, "N5im5YM5IGcgqy+DtntcA6coOxI=");
+_s(ResultRibbon, "ndFGTHotf03vwffor1GHBGcroGQ=");
 _c = ResultRibbon;
 var _c;
 __turbopack_context__.k.register(_c, "ResultRibbon");
@@ -288,6 +332,7 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 
 var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
 {
+// components/MonthlyResultsTable.tsx
 __turbopack_context__.s({
     "default": ()=>MonthlyResultsTable
 });
@@ -309,7 +354,8 @@ function groupIntoWeeks(items) {
     const only = items.filter((i)=>!isSunday(i.sessionDate));
     const rows = [];
     for(let i = 0; i < only.length; i += 6)rows.push(only.slice(i, i + 6));
-    return rows;
+    // Keep only the most recent 24 rows (≈ 6 months)
+    return rows.length > 24 ? rows.slice(-24) : rows;
 }
 function PannaColumn(param) {
     let { panna } = param;
@@ -322,71 +368,75 @@ function PannaColumn(param) {
                 children: (_p_ = p[0]) !== null && _p_ !== void 0 ? _p_ : ''
             }, void 0, false, {
                 fileName: "[project]/components/MonthlyResultsTable.tsx",
-                lineNumber: 33,
+                lineNumber: 37,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                 children: (_p_1 = p[1]) !== null && _p_1 !== void 0 ? _p_1 : ''
             }, void 0, false, {
                 fileName: "[project]/components/MonthlyResultsTable.tsx",
-                lineNumber: 34,
+                lineNumber: 38,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                 children: (_p_2 = p[2]) !== null && _p_2 !== void 0 ? _p_2 : ''
             }, void 0, false, {
                 fileName: "[project]/components/MonthlyResultsTable.tsx",
-                lineNumber: 35,
+                lineNumber: 39,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/MonthlyResultsTable.tsx",
-        lineNumber: 32,
+        lineNumber: 36,
         columnNumber: 5
     }, this);
 }
 _c = PannaColumn;
 function DayCell(param) {
     let { it } = param;
-    const closed = it.status === 'CLOSED' && it.jodi;
+    const haveDay = it.dayDigit != null && it.dayPanna != null;
+    const haveNight = it.nightDigit != null && it.nightPanna != null;
+    const closed = it.status === 'CLOSED' && haveDay && haveNight;
+    var _it_jodi;
+    const center = closed ? (_it_jodi = it.jodi) !== null && _it_jodi !== void 0 ? _it_jodi : "".concat(it.dayDigit).concat(it.nightDigit) : '—';
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "relative bg-[#fffdf6] rounded-[6px] border border-black/40 shadow-[inset_0_1px_0_rgba(0,0,0,0.12)] px-1 pt-1 pb-1.5 md:px-1.5 md:pt-1.5 md:pb-2 min-h-[56px] md:min-h-[64px] flex items-center justify-center",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "flex items-center justify-center gap-1 md:gap-1.5",
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(PannaColumn, {
-                    panna: it.openingPanna
+                    panna: it.dayPanna
                 }, void 0, false, {
                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                    lineNumber: 45,
+                    lineNumber: 54,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "min-w-[30px] md:min-w-[34px] text-center font-extrabold text-[14px] md:text-[16px] leading-5 ".concat(closed ? 'text-red-600' : 'text-gray-400'),
-                    title: closed ? "Jodi ".concat(it.jodi) : 'Pending',
-                    children: closed ? it.jodi : '—'
+                    title: closed ? "Jodi ".concat(center) : 'Pending',
+                    children: center
                 }, void 0, false, {
                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                    lineNumber: 46,
+                    lineNumber: 56,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(PannaColumn, {
-                    panna: it.closingPanna
+                    panna: it.nightPanna
                 }, void 0, false, {
                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                    lineNumber: 54,
+                    lineNumber: 65,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/MonthlyResultsTable.tsx",
-            lineNumber: 44,
+            lineNumber: 52,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/MonthlyResultsTable.tsx",
-        lineNumber: 43,
+        lineNumber: 51,
         columnNumber: 5
     }, this);
 }
@@ -403,7 +453,7 @@ function DateRangeCell(param) {
                     children: start ? ddmmyy(start) : ''
                 }, void 0, false, {
                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                    lineNumber: 64,
+                    lineNumber: 75,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -411,7 +461,7 @@ function DateRangeCell(param) {
                     children: "to"
                 }, void 0, false, {
                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                    lineNumber: 67,
+                    lineNumber: 78,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -419,18 +469,18 @@ function DateRangeCell(param) {
                     children: end ? ddmmyy(end) : ''
                 }, void 0, false, {
                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                    lineNumber: 68,
+                    lineNumber: 79,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/MonthlyResultsTable.tsx",
-            lineNumber: 63,
+            lineNumber: 74,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/MonthlyResultsTable.tsx",
-        lineNumber: 62,
+        lineNumber: 73,
         columnNumber: 5
     }, this);
 }
@@ -438,8 +488,8 @@ _c2 = DateRangeCell;
 function MonthlyResultsTable(param) {
     let { month } = param;
     _s();
-    const mm = month !== null && month !== void 0 ? month : new Date().toISOString().slice(0, 7);
-    const { data } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"])('/api/result/history?weeks=24&market=KALYAN', fetcher);
+    const { data } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"])(// ⬇️ new endpoint; no market param
+    '/api/result/history?weeks=52', fetcher);
     var _data_items;
     const rows = groupIntoWeeks((_data_items = data === null || data === void 0 ? void 0 : data.items) !== null && _data_items !== void 0 ? _data_items : []);
     if (!data) {
@@ -448,7 +498,7 @@ function MonthlyResultsTable(param) {
             children: "Loading chart…"
         }, void 0, false, {
             fileName: "[project]/components/MonthlyResultsTable.tsx",
-            lineNumber: 87,
+            lineNumber: 98,
             columnNumber: 7
         }, this);
     }
@@ -456,7 +506,9 @@ function MonthlyResultsTable(param) {
         className: "max-w-5xl mx-auto px-2 md:px-3 pb-8",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "rounded-md border-[6px] border-purple-700 bg-[#fffdf6] shadow-[0_2px_10px_rgba(0,0,0,0.25)] overflow-hidden",
-            children: rows.map((row, weekIdx)=>{
+            children: [
+                ...rows
+            ].reverse().map((row, weekIdx)=>{
                 var _row_, _row_1;
                 const start = (_row_ = row[0]) === null || _row_ === void 0 ? void 0 : _row_.sessionDate;
                 const end = (_row_1 = row[row.length - 1]) === null || _row_1 === void 0 ? void 0 : _row_1.sessionDate;
@@ -472,19 +524,19 @@ function MonthlyResultsTable(param) {
                                     end: end
                                 }, void 0, false, {
                                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                                    lineNumber: 110,
+                                    lineNumber: 115,
                                     columnNumber: 19
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/MonthlyResultsTable.tsx",
-                                lineNumber: 109,
+                                lineNumber: 114,
                                 columnNumber: 17
                             }, this),
                             row.map((it, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(DayCell, {
                                     it: it
                                 }, "".concat(it.sessionDate, "-").concat(i), false, {
                                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                                    lineNumber: 114,
+                                    lineNumber: 119,
                                     columnNumber: 19
                                 }, this)),
                             Array.from({
@@ -493,29 +545,29 @@ function MonthlyResultsTable(param) {
                                     className: "rounded-[6px] border border-dashed border-black/30 bg-[#fffdf6] min-h-[56px] md:min-h-[64px]"
                                 }, "pad-".concat(weekIdx, "-").concat(i), false, {
                                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                                    lineNumber: 119,
+                                    lineNumber: 123,
                                     columnNumber: 19
                                 }, this))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/MonthlyResultsTable.tsx",
-                        lineNumber: 108,
+                        lineNumber: 113,
                         columnNumber: 15
                     }, this)
                 }, "week-".concat(weekIdx), false, {
                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                    lineNumber: 102,
+                    lineNumber: 112,
                     columnNumber: 13
                 }, this);
             })
         }, void 0, false, {
             fileName: "[project]/components/MonthlyResultsTable.tsx",
-            lineNumber: 96,
+            lineNumber: 106,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/MonthlyResultsTable.tsx",
-        lineNumber: 94,
+        lineNumber: 105,
         columnNumber: 5
     }, this);
 }
@@ -544,6 +596,7 @@ __turbopack_context__.s({
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/client/app-dir/link.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ResultRibbon$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ResultRibbon.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Hamburger$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/Hamburger.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$MonthlyResultsTable$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/MonthlyResultsTable.tsx [app-client] (ecmascript)");
@@ -554,12 +607,14 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+;
 function Page() {
     _s();
     const [latest, setLatest] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [showScrollTop, setShowScrollTop] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const load = async ()=>{
-        const r = await fetch('/api/result/latest', {
+        // Force DAY side
+        const r = await fetch('/api/result/latest?side=day', {
             cache: 'no-store'
         });
         const d = await r.json();
@@ -576,13 +631,7 @@ function Page() {
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "Page.useEffect": ()=>{
             const handleScroll = {
-                "Page.useEffect.handleScroll": ()=>{
-                    if (window.scrollY > 300) {
-                        setShowScrollTop(true);
-                    } else {
-                        setShowScrollTop(false);
-                    }
-                }
+                "Page.useEffect.handleScroll": ()=>setShowScrollTop(window.scrollY > 300)
             }["Page.useEffect.handleScroll"];
             window.addEventListener('scroll', handleScroll);
             return ({
@@ -590,12 +639,10 @@ function Page() {
             })["Page.useEffect"];
         }
     }["Page.useEffect"], []);
-    const scrollToTop = ()=>{
-        window.scrollTo({
+    const scrollToTop = ()=>window.scrollTo({
             top: 0,
             behavior: 'smooth'
         });
-    };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
         className: "min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white",
         children: [
@@ -603,12 +650,12 @@ function Page() {
                 className: "absolute top-4 right-4 z-50",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Hamburger$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 58,
+                    lineNumber: 48,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 57,
+                lineNumber: 47,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -618,27 +665,81 @@ function Page() {
                     children: "RAJASHAHI CHART"
                 }, void 0, false, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 62,
+                    lineNumber: 53,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 61,
+                lineNumber: 52,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "bg-[#5c0f24] py-3 border-b border-yellow-700/30 shadow-inner",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "max-w-5xl mx-auto px-4 flex items-center justify-center gap-3",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            className: "text-yellow-300 text-sm",
+                            children: "View:"
+                        }, void 0, false, {
+                            fileName: "[project]/app/page.tsx",
+                            lineNumber: 61,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex rounded-lg overflow-hidden border border-yellow-600/40",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    className: "px-4 py-2 text-black font-semibold bg-yellow-400",
+                                    "aria-current": "page",
+                                    "aria-label": "Rajashahi Day selected",
+                                    disabled: true,
+                                    children: "Day"
+                                }, void 0, false, {
+                                    fileName: "[project]/app/page.tsx",
+                                    lineNumber: 63,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                    href: "/night",
+                                    className: "px-4 py-2 text-yellow-200 hover:text-black hover:bg-yellow-300 transition",
+                                    "aria-label": "Go to Rajashahi Night",
+                                    children: "Night"
+                                }, void 0, false, {
+                                    fileName: "[project]/app/page.tsx",
+                                    lineNumber: 71,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/app/page.tsx",
+                            lineNumber: 62,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/app/page.tsx",
+                    lineNumber: 60,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/app/page.tsx",
+                lineNumber: 59,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "bg-[#9a1839] py-3 text-center text-sm italic border-b-2 border-yellow-700/50 shadow-inner",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                     className: "text-yellow-200",
-                    children: "Rajashahi Matka Chart Result "
+                    children: "Rajashahi Day Result"
                 }, void 0, false, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 68,
+                    lineNumber: 84,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 67,
+                lineNumber: 83,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -652,7 +753,7 @@ function Page() {
                             children: "8777787777"
                         }, void 0, false, {
                             fileName: "[project]/app/page.tsx",
-                            lineNumber: 74,
+                            lineNumber: 90,
                             columnNumber: 29
                         }, this),
                         "   |   📧 Gmail Support: ",
@@ -661,18 +762,18 @@ function Page() {
                             children: "rajashahi.india@gmail.com"
                         }, void 0, false, {
                             fileName: "[project]/app/page.tsx",
-                            lineNumber: 75,
+                            lineNumber: 91,
                             columnNumber: 29
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 73,
+                    lineNumber: 89,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 72,
+                lineNumber: 88,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -686,59 +787,65 @@ function Page() {
                                 style: {
                                     textShadow: '2px 2px 0px #DAA520, -1px -1px 0px #B8860B'
                                 },
-                                children: "RAJASHAHI"
+                                children: "RAJASHAHI DAY"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 82,
+                                lineNumber: 98,
                                 columnNumber: 11
                             }, this),
                             latest ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ResultRibbon$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                sessionDate: latest.sessionDate,
-                                formatted: latest.formatted,
-                                jodi: latest.jodi,
+                                side: "day",
+                                status: latest === null || latest === void 0 ? void 0 : latest.status,
+                                sessionDate: latest === null || latest === void 0 ? void 0 : latest.sessionDate,
+                                dayPanna: latest === null || latest === void 0 ? void 0 : latest.dayPanna,
+                                dayDigit: latest === null || latest === void 0 ? void 0 : latest.dayDigit,
+                                nightPanna: latest === null || latest === void 0 ? void 0 : latest.nightPanna,
+                                nightDigit: latest === null || latest === void 0 ? void 0 : latest.nightDigit,
+                                // formatted={latest?.formatted}   // optional fallback
+                                // jodi={latest?.jodi}             // optional; ribbon can derive it
                                 onRefresh: load
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 86,
-                                columnNumber: 13
+                                lineNumber: 105,
+                                columnNumber: 2
                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "text-center py-8 text-black font-semibold text-lg",
                                 children: "Loading…"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 93,
+                                lineNumber: 120,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 81,
+                        lineNumber: 97,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "my-6"
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 97,
+                        lineNumber: 124,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$MonthlyResultsTable$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 98,
-                        columnNumber: 7
+                        lineNumber: 128,
+                        columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         id: "bottom",
                         className: "h-12"
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 99,
+                        lineNumber: 130,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 79,
+                lineNumber: 95,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -758,23 +865,23 @@ function Page() {
                         d: "M5 10l7-7m0 0l7 7m-7-7v18"
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 122,
+                        lineNumber: 151,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 114,
+                    lineNumber: 143,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 105,
+                lineNumber: 134,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/page.tsx",
-        lineNumber: 56,
+        lineNumber: 46,
         columnNumber: 5
     }, this);
 }

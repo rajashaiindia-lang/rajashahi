@@ -118,38 +118,33 @@ const RoundSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoo
         required: true,
         match: /^\d{4}-\d{2}-\d{2}$/
     },
-    market: {
-        type: String,
-        default: 'KALYAN',
-        required: true
-    },
-    openingTime: {
+    dayTime: {
         type: String,
         required: true,
         match: timeHHmm
     },
-    closingTime: {
+    nightTime: {
         type: String,
         required: true,
         match: timeHHmm
     },
-    openingPanna: {
+    dayPanna: {
         type: String,
         match: panna3,
         default: undefined
     },
-    openingDigit: {
+    dayDigit: {
         type: Number,
         min: 0,
         max: 9,
         default: undefined
     },
-    closingPanna: {
+    nightPanna: {
         type: String,
         match: panna3,
         default: undefined
     },
-    closingDigit: {
+    nightDigit: {
         type: Number,
         min: 0,
         max: 9,
@@ -165,6 +160,7 @@ const RoundSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoo
         enum: [
             'READY',
             'OPENING_PUBLISHED',
+            'DAY_PUBLISHED',
             'CLOSED'
         ],
         default: 'READY',
@@ -173,12 +169,37 @@ const RoundSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoo
 }, {
     timestamps: true
 });
-// Helpful unique constraint to avoid duplicate market-day sessions:
 RoundSchema.index({
-    market: 1,
     sessionDate: 1
 }, {
     unique: true
+});
+// models/Round.ts (add this BEFORE export default)
+RoundSchema.pre('validate', function(next) {
+    // @ts-ignore – tolerate legacy fields
+    const openingTime = this.openingTime;
+    // @ts-ignore
+    const closingTime = this.closingTime;
+    if (!this.dayTime && openingTime) this.dayTime = openingTime;
+    if (!this.nightTime && closingTime) this.nightTime = closingTime;
+    // Legacy result fields (best-effort)
+    // @ts-ignore
+    const openingPanna = this.openingPanna;
+    // @ts-ignore
+    const openingDigit = this.openingDigit;
+    // @ts-ignore
+    const closingPanna = this.closingPanna;
+    // @ts-ignore
+    const closingDigit = this.closingDigit;
+    if (!this.dayPanna && openingPanna) this.dayPanna = openingPanna;
+    if (this.dayDigit == null && openingDigit != null) this.dayDigit = openingDigit;
+    if (!this.nightPanna && closingPanna) this.nightPanna = closingPanna;
+    if (this.nightDigit == null && closingDigit != null) this.nightDigit = closingDigit;
+    // Status bridge: allow old 'OPENING_PUBLISHED'
+    // (you already added the enum, this is just a safety)
+    // no mapping needed unless you want to force-convert:
+    // if (this.status === 'OPENING_PUBLISHED') this.status = 'DAY_PUBLISHED';
+    next();
 });
 const __TURBOPACK__default__export__ = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["models"].Round || (0, __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["model"])('Round', RoundSchema);
 }),
