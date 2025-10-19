@@ -264,11 +264,17 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$helpers$2e$ts__$5b$
 ;
 ;
 const pad3 = (v)=>String(v ?? '').replace(/\D/g, '').slice(0, 3).padStart(3, '0');
-async function PATCH(req, { params }) {
-    // Normalize the URL param: remove zero-width chars etc., trim, and validate
-    const raw = (params.sessionDate ?? '').normalize().trim();
-    const sessionDate = raw.replace(/[^\d-]/g, ''); // keep only digits and hyphen
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(sessionDate)) {
+/** Helper to extract and validate sessionDate from URL */ function extractSessionDate(req) {
+    const url = new URL(req.url);
+    const rawParam = decodeURIComponent(url.pathname.split('/').pop() || '');
+    const raw = rawParam.normalize().trim();
+    const sessionDate = raw.replace(/[^\d-]/g, ''); // keep digits + hyphens only
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(sessionDate)) return null;
+    return sessionDate;
+}
+async function PATCH(req) {
+    const sessionDate = extractSessionDate(req);
+    if (!sessionDate) {
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             ok: false,
             error: 'Bad sessionDate in URL'
@@ -291,12 +297,14 @@ async function PATCH(req, { params }) {
     const round = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({
         sessionDate
     });
-    if (!round) return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-        ok: false,
-        error: `No round for ${sessionDate}`
-    }, {
-        status: 404
-    });
+    if (!round) {
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            ok: false,
+            error: `No round for ${sessionDate}`
+        }, {
+            status: 404
+        });
+    }
     // --- Update fields ---
     if (setDay) {
         if (body.dayPanna === null) {
@@ -304,12 +312,14 @@ async function PATCH(req, { params }) {
             round.dayDigit = undefined;
         } else {
             const p = pad3(body.dayPanna);
-            if (!/^\d{3}$/.test(p)) return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                ok: false,
-                error: 'dayPanna must be 000–999'
-            }, {
-                status: 400
-            });
+            if (!/^\d{3}$/.test(p)) {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    ok: false,
+                    error: 'dayPanna must be 000–999'
+                }, {
+                    status: 400
+                });
+            }
             round.dayPanna = p;
             round.dayDigit = (0, __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$helpers$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["digitFromPanna"])(p);
         }
@@ -320,12 +330,14 @@ async function PATCH(req, { params }) {
             round.nightDigit = undefined;
         } else {
             const p = pad3(body.nightPanna);
-            if (!/^\d{3}$/.test(p)) return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                ok: false,
-                error: 'nightPanna must be 000–999'
-            }, {
-                status: 400
-            });
+            if (!/^\d{3}$/.test(p)) {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    ok: false,
+                    error: 'nightPanna must be 000–999'
+                }, {
+                    status: 400
+                });
+            }
             round.nightPanna = p;
             round.nightDigit = (0, __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$helpers$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["digitFromPanna"])(p);
         }
@@ -349,17 +361,28 @@ async function PATCH(req, { params }) {
         round
     });
 }
-async function DELETE(_req, { params }) {
+async function DELETE(req) {
+    const sessionDate = extractSessionDate(req);
+    if (!sessionDate) {
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            ok: false,
+            error: 'Bad sessionDate in URL'
+        }, {
+            status: 400
+        });
+    }
     await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$mongodb$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["dbConnect"])();
     const { deletedCount } = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].deleteOne({
-        sessionDate: params.sessionDate
+        sessionDate
     });
-    if (!deletedCount) return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-        ok: false,
-        error: 'Not found'
-    }, {
-        status: 404
-    });
+    if (!deletedCount) {
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            ok: false,
+            error: `No round found for ${sessionDate}`
+        }, {
+            status: 404
+        });
+    }
     return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
         ok: true
     });

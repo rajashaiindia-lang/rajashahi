@@ -350,7 +350,8 @@ function groupIntoWeeks(items) {
     const only = items.filter((i)=>!isSunday(i.sessionDate));
     const rows = [];
     for(let i = 0; i < only.length; i += 6)rows.push(only.slice(i, i + 6));
-    return rows;
+    // Keep only the most recent 24 rows (≈ 6 months)
+    return rows.length > 24 ? rows.slice(-24) : rows;
 }
 function PannaColumn({ panna }) {
     const p = (panna ?? '   ').padEnd(3, ' ');
@@ -361,27 +362,27 @@ function PannaColumn({ panna }) {
                 children: p[0] ?? ''
             }, void 0, false, {
                 fileName: "[project]/components/MonthlyResultsTable.tsx",
-                lineNumber: 36,
+                lineNumber: 37,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                 children: p[1] ?? ''
             }, void 0, false, {
                 fileName: "[project]/components/MonthlyResultsTable.tsx",
-                lineNumber: 37,
+                lineNumber: 38,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                 children: p[2] ?? ''
             }, void 0, false, {
                 fileName: "[project]/components/MonthlyResultsTable.tsx",
-                lineNumber: 38,
+                lineNumber: 39,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/MonthlyResultsTable.tsx",
-        lineNumber: 35,
+        lineNumber: 36,
         columnNumber: 5
     }, this);
 }
@@ -399,7 +400,7 @@ function DayCell({ it }) {
                     panna: it.dayPanna
                 }, void 0, false, {
                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                    lineNumber: 53,
+                    lineNumber: 54,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -408,25 +409,25 @@ function DayCell({ it }) {
                     children: center
                 }, void 0, false, {
                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                    lineNumber: 55,
+                    lineNumber: 56,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(PannaColumn, {
                     panna: it.nightPanna
                 }, void 0, false, {
                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                    lineNumber: 64,
+                    lineNumber: 65,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/MonthlyResultsTable.tsx",
-            lineNumber: 51,
+            lineNumber: 52,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/MonthlyResultsTable.tsx",
-        lineNumber: 50,
+        lineNumber: 51,
         columnNumber: 5
     }, this);
 }
@@ -441,7 +442,7 @@ function DateRangeCell({ start, end }) {
                     children: start ? ddmmyy(start) : ''
                 }, void 0, false, {
                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                    lineNumber: 74,
+                    lineNumber: 75,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -449,7 +450,7 @@ function DateRangeCell({ start, end }) {
                     children: "to"
                 }, void 0, false, {
                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                    lineNumber: 77,
+                    lineNumber: 78,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -457,24 +458,24 @@ function DateRangeCell({ start, end }) {
                     children: end ? ddmmyy(end) : ''
                 }, void 0, false, {
                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                    lineNumber: 78,
+                    lineNumber: 79,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/MonthlyResultsTable.tsx",
-            lineNumber: 73,
+            lineNumber: 74,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/MonthlyResultsTable.tsx",
-        lineNumber: 72,
+        lineNumber: 73,
         columnNumber: 5
     }, this);
 }
 function MonthlyResultsTable({ month }) {
     const { data } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"])(// ⬇️ new endpoint; no market param
-    '/api/result/history?weeks=24', fetcher);
+    '/api/result/history?weeks=52', fetcher);
     const rows = groupIntoWeeks(data?.items ?? []);
     if (!data) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -482,7 +483,7 @@ function MonthlyResultsTable({ month }) {
             children: "Loading chart…"
         }, void 0, false, {
             fileName: "[project]/components/MonthlyResultsTable.tsx",
-            lineNumber: 97,
+            lineNumber: 98,
             columnNumber: 7
         }, this);
     }
@@ -490,7 +491,9 @@ function MonthlyResultsTable({ month }) {
         className: "max-w-5xl mx-auto px-2 md:px-3 pb-8",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "rounded-md border-[6px] border-purple-700 bg-[#fffdf6] shadow-[0_2px_10px_rgba(0,0,0,0.25)] overflow-hidden",
-            children: rows.map((row, weekIdx)=>{
+            children: [
+                ...rows
+            ].map((row, weekIdx)=>{
                 const start = row[0]?.sessionDate;
                 const end = row[row.length - 1]?.sessionDate;
                 return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -505,19 +508,19 @@ function MonthlyResultsTable({ month }) {
                                     end: end
                                 }, void 0, false, {
                                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                                    lineNumber: 114,
+                                    lineNumber: 115,
                                     columnNumber: 19
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/MonthlyResultsTable.tsx",
-                                lineNumber: 113,
+                                lineNumber: 114,
                                 columnNumber: 17
                             }, this),
                             row.map((it, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(DayCell, {
                                     it: it
                                 }, `${it.sessionDate}-${i}`, false, {
                                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                                    lineNumber: 118,
+                                    lineNumber: 119,
                                     columnNumber: 19
                                 }, this)),
                             Array.from({
@@ -526,29 +529,29 @@ function MonthlyResultsTable({ month }) {
                                     className: "rounded-[6px] border border-dashed border-black/30 bg-[#fffdf6] min-h-[56px] md:min-h-[64px]"
                                 }, `pad-${weekIdx}-${i}`, false, {
                                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                                    lineNumber: 122,
+                                    lineNumber: 123,
                                     columnNumber: 19
                                 }, this))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/MonthlyResultsTable.tsx",
-                        lineNumber: 112,
+                        lineNumber: 113,
                         columnNumber: 15
                     }, this)
                 }, `week-${weekIdx}`, false, {
                     fileName: "[project]/components/MonthlyResultsTable.tsx",
-                    lineNumber: 111,
+                    lineNumber: 112,
                     columnNumber: 13
                 }, this);
             })
         }, void 0, false, {
             fileName: "[project]/components/MonthlyResultsTable.tsx",
-            lineNumber: 105,
+            lineNumber: 106,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/MonthlyResultsTable.tsx",
-        lineNumber: 104,
+        lineNumber: 105,
         columnNumber: 5
     }, this);
 }

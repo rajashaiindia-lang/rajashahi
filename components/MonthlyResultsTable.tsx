@@ -104,7 +104,7 @@ export default function MonthlyResultsTable({ month }: { month?: string }) {
   return (
     <section className="max-w-5xl mx-auto px-2 md:px-3 pb-8">
       <div className="rounded-md border-[6px] border-purple-700 bg-[#fffdf6] shadow-[0_2px_10px_rgba(0,0,0,0.25)] overflow-hidden">
-       {[...rows].reverse().map((row, weekIdx) => {
+       {[...rows].map((row, weekIdx) => {
           const start = row[0]?.sessionDate;
           const end = row[row.length - 1]?.sessionDate;
 

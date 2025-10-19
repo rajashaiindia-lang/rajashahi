@@ -508,7 +508,7 @@ function MonthlyResultsTable(param) {
             className: "rounded-md border-[6px] border-purple-700 bg-[#fffdf6] shadow-[0_2px_10px_rgba(0,0,0,0.25)] overflow-hidden",
             children: [
                 ...rows
-            ].reverse().map((row, weekIdx)=>{
+            ].map((row, weekIdx)=>{
                 var _row_, _row_1;
                 const start = (_row_ = row[0]) === null || _row_ === void 0 ? void 0 : _row_.sessionDate;
                 const end = (_row_1 = row[row.length - 1]) === null || _row_1 === void 0 ? void 0 : _row_1.sessionDate;
