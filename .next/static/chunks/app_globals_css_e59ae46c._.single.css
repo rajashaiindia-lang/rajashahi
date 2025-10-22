@@ -1073,6 +1073,10 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .grid-cols-8 {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+
   .grid-cols-10 {
     grid-template-columns: repeat(10, minmax(0, 1fr));
   }
@@ -1251,6 +1255,11 @@
   .border-t-2 {
     border-top-style: var(--tw-border-style);
     border-top-width: 2px;
+  }
+
+  .border-r {
+    border-right-style: var(--tw-border-style);
+    border-right-width: 1px;
   }
 
   .border-b {
@@ -1462,6 +1471,16 @@
 
   .border-red-500 {
     border-color: var(--color-red-500);
+  }
+
+  .border-red-500\/40 {
+    border-color: rgba(251, 44, 54, .4);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-red-500\/40 {
+      border-color: color-mix(in oklab, var(--color-red-500) 40%, transparent);
+    }
   }
 
   .border-red-700 {
@@ -1764,12 +1783,26 @@
     }
   }
 
+  .bg-red-500\/20 {
+    background-color: rgba(251, 44, 54, .2);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-red-500\/20 {
+      background-color: color-mix(in oklab, var(--color-red-500) 20%, transparent);
+    }
+  }
+
   .bg-red-600 {
     background-color: var(--color-red-600);
   }
 
   .bg-white {
     background-color: var(--color-white);
+  }
+
+  .bg-yellow-200 {
+    background-color: var(--color-yellow-200);
   }
 
   .bg-yellow-300 {
@@ -2467,6 +2500,10 @@
     font-size: 9px;
   }
 
+  .text-\[10px\] {
+    font-size: 10px;
+  }
+
   .text-\[13px\] {
     font-size: 13px;
   }
@@ -2943,6 +2980,18 @@
   }
 
   @media (hover: hover) {
+    .hover\:bg-red-500\/30:hover {
+      background-color: rgba(251, 44, 54, .3);
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-red-500\/30:hover {
+        background-color: color-mix(in oklab, var(--color-red-500) 30%, transparent);
+      }
+    }
+  }
+
+  @media (hover: hover) {
     .hover\:bg-yellow-300:hover {
       background-color: var(--color-yellow-300);
     }
@@ -3203,6 +3252,12 @@
   }
 
   @media (min-width: 48rem) {
+    .md\:grid-cols-8 {
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 48rem) {
     .md\:gap-1\.5 {
       gap: calc(var(--spacing) * 1.5);
     }
@@ -3264,6 +3319,12 @@
   }
 
   @media (min-width: 48rem) {
+    .md\:text-\[12px\] {
+      font-size: 12px;
+    }
+  }
+
+  @media (min-width: 48rem) {
     .md\:text-\[16px\] {
       font-size: 16px;
     }
@@ -3272,6 +3333,18 @@
   @media (min-width: 64rem) {
     .lg\:grid-cols-3 {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .lg\:grid-cols-8 {
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .xl\:grid-cols-8 {
+      grid-template-columns: repeat(8, minmax(0, 1fr));
     }
   }
 }

@@ -53,7 +53,7 @@ function AdminPage() {
         }
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
-        className: "min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white flex items-center justify-center p-4",
+        className: "min-h-screen text-white bg-gradient-to-br from-gray-900 via-black to-gray-900  flex items-center justify-center p-4",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "absolute top-4 left-4",
@@ -157,7 +157,7 @@ function AdminPage() {
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                         type: "password",
-                                        className: "w-full p-4 text-black rounded-lg font-semibold text-lg focus:ring-2 focus:ring-yellow-500 outline-none transition-all",
+                                        className: "w-full p-4 text-white rounded-lg font-semibold text-lg focus:ring-2 focus:ring-yellow-500 outline-none transition-all",
                                         placeholder: "Enter password",
                                         value: password,
                                         onChange: (e)=>setPassword(e.target.value),

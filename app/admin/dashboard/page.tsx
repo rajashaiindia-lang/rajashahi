@@ -122,13 +122,33 @@ export default function AdminPanel() {
               ADMIN PANEL
             </h1>
           </div>
-          <button
-            onClick={() => load()}
-            className="px-4 py-2 rounded-lg bg-yellow-500/20 border border-yellow-500/40 hover:bg-yellow-500/30 transition-all text-yellow-200 font-semibold"
-            disabled={busy}
-          >
-            🔄 Refresh
-          </button>
+      <div className="flex gap-3">
+  <button
+    onClick={() => load()}
+    className="px-4 py-2 rounded-lg bg-yellow-500/20 border border-yellow-500/40 hover:bg-yellow-500/30 transition-all text-yellow-200 font-semibold"
+    disabled={busy}
+  >
+    🔄 Refresh
+  </button>
+
+  <button
+    onClick={async () => {
+      setBusy(true);
+      try {
+        await fetch('/api/logout', { method: 'POST' });
+      } catch {}
+      finally {
+        setBusy(false);
+        window.location.href = '/admin'; // Redirect to login
+      }
+    }}
+    className="px-4 py-2 rounded-lg bg-red-500/20 border border-red-500/40 hover:bg-red-500/30 transition-all text-red-200 font-semibold"
+    disabled={busy}
+  >
+    🚪 Logout
+  </button>
+</div>
+
         </div>
       </div>
 
@@ -214,7 +234,7 @@ export default function AdminPanel() {
                   type="date" 
                   value={sessionDate} 
                   onChange={e => setSessionDate(e.target.value)} 
-                  className="w-full p-3 text-black rounded-lg font-semibold focus:ring-2 focus:ring-green-500 outline-none" 
+                  className="w-full p-3 text-white rounded-lg font-semibold focus:ring-2 focus:ring-green-500 outline-none" 
                 />
               </div>
               <div>
@@ -223,7 +243,7 @@ export default function AdminPanel() {
                   type="time" 
                   value={dayTime} 
                   onChange={e => setDayTime(e.target.value)} 
-                  className="w-full p-3 text-black rounded-lg font-semibold focus:ring-2 focus:ring-green-500 outline-none" 
+                  className="w-full p-3 text-white rounded-lg font-semibold focus:ring-2 focus:ring-green-500 outline-none" 
                 />
               </div>
               <div>
@@ -232,7 +252,7 @@ export default function AdminPanel() {
                   type="time" 
                   value={nightTime} 
                   onChange={e => setNightTime(e.target.value)} 
-                  className="w-full p-3 text-black rounded-lg font-semibold focus:ring-2 focus:ring-green-500 outline-none" 
+                  className="w-full p-3 text-white rounded-lg font-semibold focus:ring-2 focus:ring-green-500 outline-none" 
                 />
               </div>
             </div>
