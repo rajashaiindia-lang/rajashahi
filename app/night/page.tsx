@@ -1,23 +1,26 @@
-// app/night/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import ResultRibbon from '@/components/ResultRibbon';
 import Hamburger from '@/components/Hamburger';
-import MonthlyResultsTable from '@/components/MonthlyResultsTable';
 import NightResultsTable from '@/components/NightResultTable';
 
 type Latest = {
   jodi: string | null;
-  formatted: string; // e.g. "(160) 7 | 9 (135)"
-  status: 'READY' | 'DAY_PUBLISHED' | 'CLOSED';
+  formatted?: string;
+  // new per-line names coming from backend
+  status: 'READY' | 'OPEN_PUBLISHED' | 'CLOSED';
   sessionDate: string;
-  // If your API also returns explicit fields, ResultRibbon will use them:
-  dayPanna?: string | null;
-  dayDigit?: number | null;
+  // explicit fields
   nightPanna?: string | null;
   nightDigit?: number | null;
+  nightClosePanna?: string | null;
+  nightCloseDigit?: number | null;
+
+  // you had these, keep them harmlessly
+  dayPanna?: string | null;
+  dayDigit?: number | null;
 };
 
 export default function NightPage() {
@@ -30,7 +33,9 @@ export default function NightPage() {
     setLatest(d);
   };
 
-  useEffect(() => { load().catch(() => {}); }, []);
+  useEffect(() => {
+    load().catch(() => {});
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setShowScrollTop(window.scrollY > 300);
@@ -39,6 +44,11 @@ export default function NightPage() {
   }, []);
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // translate to what ResultRibbon expects
+  const ribbonStatus =
+    latest?.status === 'OPEN_PUBLISHED' ? 'DAY_PUBLISHED' : latest?.status;
+
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white">
@@ -103,15 +113,14 @@ export default function NightPage() {
           {latest ? (
             <ResultRibbon
               side="night"
-              status={latest.status}
+              status={ribbonStatus}
               sessionDate={latest.sessionDate}
-              // If your API provides explicit values, Ribbon will prefer these:
-              dayPanna={latest.dayPanna}
-              dayDigit={latest.dayDigit}
+              // opening
               nightPanna={latest.nightPanna}
               nightDigit={latest.nightDigit}
-              // Fallbacks (keeps working with old API shape):
-            
+              // closing (new)
+              nightClosePanna={latest.nightClosePanna}
+              nightCloseDigit={latest.nightCloseDigit}
               jodi={latest.jodi}
               onRefresh={load}
             />

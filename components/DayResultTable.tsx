@@ -10,6 +10,11 @@ type Item = {
   closeDigit?: number | null;
   jodi?: string | null;
   status: 'READY' | 'OPEN_PUBLISHED' | 'CLOSED';
+
+  // optional: if your /api/result/history starts returning these,
+  // we'll use them to decide "still scheduled" for today
+  openTime?: string | null;   // 'HH:mm'
+  closeTime?: string | null;  // 'HH:mm'
 };
 
 type LocalItem = Item & { _missing?: boolean };
@@ -75,36 +80,62 @@ function PlaceholderCell() {
   return (
     <div className="relative bg-[#fffdf6] rounded-[6px] border border-black/40 shadow-[inset_0_1px_0_rgba(0,0,0,0.12)] px-1 pt-1 pb-1.5 min-h-[56px] flex items-center justify-center">
       <div className="flex items-center justify-center gap-1">
-        {/* left stars */}
         <div className="flex flex-col items-center text-[8px] leading-3 text-black">
-          {col.map((c, i) => <span key={i}>{c}</span>)}
+          {col.map((c, i) => (
+            <span key={i}>{c}</span>
+          ))}
         </div>
-        {/* center star */}
-        <div className="min-w-[30px] text-center font-extrabold text-[16px] text-black">
-          *
-        </div>
-        {/* right stars */}
+        <div className="min-w-[30px] text-center font-extrabold text-[16px] text-black">*</div>
         <div className="flex flex-col items-center text-[8px] leading-3 text-black">
-          {col.map((c, i) => <span key={i}>{c}</span>)}
+          {col.map((c, i) => (
+            <span key={i}>{c}</span>
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-function DayCell({ it }: { it: LocalItem }) {
+function TodayPendingCell() {
+  return (
+    <div className="relative bg-[#fffdf6] rounded-[6px] border border-dashed border-black/40 px-1 pt-1 pb-1.5 min-h-[56px] flex items-center justify-center">
+      <div className="min-w-[30px] text-center font-extrabold text-[14px] text-gray-400">
+        —
+      </div>
+    </div>
+  );
+}
+
+// client-side helper for optional schedule
+function isNowBeforeIST(dateStr: string, hhmm?: string | null) {
+  if (!hhmm) return false;
+  const target = new Date(`${dateStr}T${hhmm}:00+05:30`);
+  return new Date() < target;
+}
+
+function DayCell({ it, today }: { it: LocalItem; today: string }) {
   const haveOpen = it.openDigit != null && it.openPanna != null;
   const haveClose = it.closeDigit != null && it.closePanna != null;
   const closed = it.status === 'CLOSED' && haveOpen && haveClose;
 
-  // no data at all → show star placeholder (your requirement)
+  const isToday = it.sessionDate === today;
+
+  // if today but nothing yet (or scheduled later) → show "-"
+  if (isToday) {
+    const openScheduled = isNowBeforeIST(it.sessionDate, it.openTime);
+    const closeScheduled = isNowBeforeIST(it.sessionDate, it.closeTime);
+    const nothingYet = !haveOpen && !haveClose;
+    if (nothingYet || openScheduled || closeScheduled) {
+      return <TodayPendingCell />;
+    }
+  }
+
+  // past day, no data → show star placeholder
   if (it._missing || (!haveOpen && !haveClose)) {
     return <PlaceholderCell />;
   }
 
-  const center = closed
-    ? (it.jodi ?? `${it.openDigit}${it.closeDigit}`)
-    : '—';
+  const center = closed ? it.jodi ?? `${it.openDigit}${it.closeDigit}` : '—';
 
   return (
     <div className="relative bg-[#fffdf6] rounded-[6px] border border-black/40 shadow-[inset_0_1px_0_rgba(0,0,0,0.12)] px-1 pt-1 pb-1.5 min-h-[56px] flex items-center justify-center">
@@ -147,6 +178,7 @@ export default function DayResultsTable() {
 
   const filled = fillContinuous(data.items ?? []);
   const rows = groupIntoWeeks(filled);
+  const today = new Date().toISOString().slice(0, 10);
 
   return (
     <section className="max-w-5xl mx-auto px-2 md:px-3 pb-8">
@@ -173,7 +205,7 @@ export default function DayResultsTable() {
                   <DateRangeCell start={start} end={end} />
                 </div>
                 {row.map((it, i) => (
-                  <DayCell key={`${it.sessionDate}-${i}`} it={it} />
+                  <DayCell key={`${it.sessionDate}-${i}`} it={it} today={today} />
                 ))}
               </div>
             </div>

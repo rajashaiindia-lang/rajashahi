@@ -1,3 +1,4 @@
+// app/api/admin/rounds/[sessionDate]/route.ts
 import { NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import Round from '@/models/Round';
@@ -9,6 +10,8 @@ const pad3 = (v: any) =>
     .slice(0, 3)
     .padStart(3, '0');
 
+const hhmm = /^([01]\d|2[0-3]):[0-5]\d$/;
+
 function extractSessionDate(req: Request) {
   const url = new URL(req.url);
   const rawParam = decodeURIComponent(url.pathname.split('/').pop() || '');
@@ -18,81 +21,6 @@ function extractSessionDate(req: Request) {
   return sessionDate;
 }
 
-// -------- GET: return the round, or 404 if none --------
-export async function GET(req: Request) {
-  const sessionDate = extractSessionDate(req);
-  if (!sessionDate) {
-    return NextResponse.json({ ok: false, error: 'Bad sessionDate in URL' }, { status: 400 });
-  }
-
-  await dbConnect();
-  const round = await Round.findOne({ sessionDate }).lean<any>();
-  if (!round) {
-    return NextResponse.json({ ok: false, error: `No round for ${sessionDate}` }, { status: 404 });
-  }
-
-  // normalize like before
-  const dayOpenPanna  = round.dayOpenPanna  ?? round.dayPanna ?? null;
-  const dayOpenDigit  = round.dayOpenDigit  ?? round.dayDigit ?? null;
-  const dayClosePanna = round.dayClosePanna ?? null;
-  const dayCloseDigit = round.dayCloseDigit ?? null;
-
-  const haveDayOpen  = dayOpenDigit  != null;
-  const haveDayClose = dayCloseDigit != null;
-
-  const dayLineStatus =
-    round.dayLineStatus
-      ? round.dayLineStatus
-      : haveDayOpen
-        ? (haveDayClose ? 'CLOSED' : 'OPEN_PUBLISHED')
-        : 'READY';
-
-  const dayJodi =
-    haveDayOpen && haveDayClose
-      ? (round.dayJodi ?? deriveJodi(dayOpenDigit!, dayCloseDigit!) as string)
-      : null;
-
-  const nightOpenPanna  = round.nightOpenPanna  ?? round.nightPanna ?? null;
-  const nightOpenDigit  = round.nightOpenDigit  ?? round.nightDigit ?? null;
-  const nightClosePanna = round.nightClosePanna ?? null;
-  const nightCloseDigit = round.nightCloseDigit ?? null;
-
-  const haveNightOpen  = nightOpenDigit  != null;
-  const haveNightClose = nightCloseDigit != null;
-
-  const nightLineStatus =
-    round.nightLineStatus
-      ? round.nightLineStatus
-      : haveNightOpen
-        ? (haveNightClose ? 'CLOSED' : 'OPEN_PUBLISHED')
-        : 'READY';
-
-  const nightJodi =
-    haveNightOpen && haveNightClose
-      ? (round.nightJodi ?? deriveJodi(nightOpenDigit!, nightCloseDigit!) as string)
-      : null;
-
-  return NextResponse.json({
-    ok: true,
-    round: {
-      ...round,
-      dayOpenPanna,
-      dayOpenDigit,
-      dayClosePanna,
-      dayCloseDigit,
-      dayJodi,
-      dayLineStatus,
-      nightOpenPanna,
-      nightOpenDigit,
-      nightClosePanna,
-      nightCloseDigit,
-      nightJodi,
-      nightLineStatus,
-    },
-  });
-}
-
-// -------- PATCH: CREATE IF MISSING, then update --------
 export async function PATCH(req: Request) {
   const sessionDate = extractSessionDate(req);
   if (!sessionDate) {
@@ -104,10 +32,10 @@ export async function PATCH(req: Request) {
   await dbConnect();
   let round = await Round.findOne({ sessionDate });
 
-  // if round for that date does not exist → create a basic one
+  // create round if missing
   if (!round) {
     round = new Round({
-      roundId: 'R-' + sessionDate.replace(/-/g, ''), // unique-ish
+      roundId: 'R-' + sessionDate.replace(/-/g, ''),
       sessionDate,
       dayTime: '10:00',
       nightTime: '22:00',
@@ -115,7 +43,21 @@ export async function PATCH(req: Request) {
     });
   }
 
-  // figure out what we’re setting
+  // ---------- NEW: time fields ----------
+  if (typeof body.dayOpenTime === 'string' && hhmm.test(body.dayOpenTime)) {
+    round.dayOpenTime = body.dayOpenTime;
+  }
+  if (typeof body.dayCloseTime === 'string' && hhmm.test(body.dayCloseTime)) {
+    round.dayCloseTime = body.dayCloseTime;
+  }
+  if (typeof body.nightOpenTime === 'string' && hhmm.test(body.nightOpenTime)) {
+    round.nightOpenTime = body.nightOpenTime;
+  }
+  if (typeof body.nightCloseTime === 'string' && hhmm.test(body.nightCloseTime)) {
+    round.nightCloseTime = body.nightCloseTime;
+  }
+
+  // figure out what we’re setting (same as before)
   const setDayLegacy   = 'dayPanna' in body;
   const setNightLegacy = 'nightPanna' in body;
   const setDayOpen     = 'dayOpenPanna' in body;
@@ -129,19 +71,24 @@ export async function PATCH(req: Request) {
     !setDayOpen &&
     !setDayClose &&
     !setNightOpen &&
-    !setNightClose
+    !setNightClose &&
+    // 👆 we added times, so allow PATCH with only times
+    !('dayOpenTime' in body) &&
+    !('dayCloseTime' in body) &&
+    !('nightOpenTime' in body) &&
+    !('nightCloseTime' in body)
   ) {
     return NextResponse.json(
       {
         ok: false,
         error:
-          'Provide at least one of: dayPanna, nightPanna, dayOpenPanna, dayClosePanna, nightOpenPanna, nightClosePanna',
+          'Provide at least one of: dayPanna, nightPanna, dayOpenPanna, dayClosePanna, nightOpenPanna, nightClosePanna, or any of the time fields',
       },
       { status: 400 }
     );
   }
 
-  // legacy day
+  // ----- legacy day -----
   if (setDayLegacy) {
     if (body.dayPanna === null) {
       round.dayPanna = undefined as any;
@@ -156,7 +103,7 @@ export async function PATCH(req: Request) {
     }
   }
 
-  // legacy night
+  // ----- legacy night -----
   if (setNightLegacy) {
     if (body.nightPanna === null) {
       round.nightPanna = undefined as any;
@@ -171,7 +118,7 @@ export async function PATCH(req: Request) {
     }
   }
 
-  // DAY OPEN
+  // ----- DAY OPEN -----
   if (setDayOpen) {
     if (body.dayOpenPanna === null) {
       round.dayOpenPanna = undefined as any;
@@ -186,7 +133,7 @@ export async function PATCH(req: Request) {
     }
   }
 
-  // DAY CLOSE
+  // ----- DAY CLOSE -----
   if (setDayClose) {
     if (body.dayClosePanna === null) {
       round.dayClosePanna = undefined as any;
@@ -201,7 +148,7 @@ export async function PATCH(req: Request) {
     }
   }
 
-  // NIGHT OPEN
+  // ----- NIGHT OPEN -----
   if (setNightOpen) {
     if (body.nightOpenPanna === null) {
       round.nightOpenPanna = undefined as any;
@@ -216,7 +163,7 @@ export async function PATCH(req: Request) {
     }
   }
 
-  // NIGHT CLOSE
+  // ----- NIGHT CLOSE -----
   if (setNightClose) {
     if (body.nightClosePanna === null) {
       round.nightClosePanna = undefined as any;
@@ -268,20 +215,4 @@ export async function PATCH(req: Request) {
   await round.save();
 
   return NextResponse.json({ ok: true, round });
-}
-
-// ---------------------------------- DELETE ----------------------------------
-export async function DELETE(req: Request) {
-  const sessionDate = extractSessionDate(req);
-  if (!sessionDate) {
-    return NextResponse.json({ ok: false, error: 'Bad sessionDate in URL' }, { status: 400 });
-  }
-
-  await dbConnect();
-  const { deletedCount } = await Round.deleteOne({ sessionDate });
-  if (!deletedCount) {
-    return NextResponse.json({ ok: false, error: `No round found for ${sessionDate}` }, { status: 404 });
-  }
-
-  return NextResponse.json({ ok: true });
 }

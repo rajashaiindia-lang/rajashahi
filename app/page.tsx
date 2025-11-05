@@ -4,17 +4,18 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import ResultRibbon from '@/components/ResultRibbon';
 import Hamburger from '@/components/Hamburger';
-import MonthlyResultsTable from '@/components/MonthlyResultsTable';
 import DayResultsTable from '@/components/DayResultTable';
 
 type Latest = {
-  // your API can keep other fields, we only use a few here:
   jodi: string | null;
-  formatted: string; // e.g. "(DP) D | N (NP)"
-  status: 'READY' | 'DAY_PUBLISHED' | 'CLOSED';
+  formatted?: string;
+  // backend gives: READY | OPEN_PUBLISHED | CLOSED
+  status: 'READY' | 'OPEN_PUBLISHED' | 'CLOSED';
   sessionDate: string;
   dayPanna?: string | null;
   dayDigit?: number | null;
+  dayClosePanna?: string | null;
+  dayCloseDigit?: number | null;
   nightPanna?: string | null;
   nightDigit?: number | null;
 };
@@ -24,17 +25,15 @@ export default function Page() {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   const load = async () => {
-    // Force DAY side
     const r = await fetch('/api/result/latest?side=day', { cache: 'no-store' });
     const d = await r.json();
     setLatest(d);
   };
 
-  useEffect(() => { 
-    load().catch(() => {}); 
+  useEffect(() => {
+    load().catch(() => {});
   }, []);
 
-  // Handle scroll to show/hide button
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
@@ -42,6 +41,10 @@ export default function Page() {
   }, []);
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // 👇 translate NEW status → what ResultRibbon expects
+  const ribbonStatus =
+    latest?.status === 'OPEN_PUBLISHED' ? 'DAY_PUBLISHED' : latest?.status;
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white">
@@ -103,16 +106,18 @@ export default function Page() {
             RAJASHAHI DAY
           </div>
 {latest ? (
-<ResultRibbon
-  side="day"
-  status={latest?.status}
-  sessionDate={latest?.sessionDate}
-  dayPanna={latest?.dayPanna}
-  dayDigit={latest?.dayDigit}
-  // do NOT pass night fields for day view
-  jodi={latest?.jodi ?? null}
-  onRefresh={load}
-/>
+            <ResultRibbon
+              side="day"
+              status={ribbonStatus}          
+              sessionDate={latest.sessionDate}
+              dayPanna={latest.dayPanna}
+              dayDigit={latest.dayDigit}
+              dayClosePanna={latest.dayClosePanna}
+              dayCloseDigit={latest.dayCloseDigit}
+              jodi={latest.jodi ?? null}
+              onRefresh={load}
+            />
+
 
 ) : (
   <div className="text-center py-8 text-black font-semibold text-lg">Loading…</div>

@@ -399,27 +399,27 @@ function PannaColumn(param) {
                 children: p[0]
             }, void 0, false, {
                 fileName: "[project]/components/DayResultTable.tsx",
-                lineNumber: 66,
+                lineNumber: 71,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                 children: p[1]
             }, void 0, false, {
                 fileName: "[project]/components/DayResultTable.tsx",
-                lineNumber: 67,
+                lineNumber: 72,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                 children: p[2]
             }, void 0, false, {
                 fileName: "[project]/components/DayResultTable.tsx",
-                lineNumber: 68,
+                lineNumber: 73,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/DayResultTable.tsx",
-        lineNumber: 65,
+        lineNumber: 70,
         columnNumber: 5
     }, this);
 }
@@ -441,12 +441,12 @@ function PlaceholderCell() {
                             children: c
                         }, i, false, {
                             fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 80,
-                            columnNumber: 30
+                            lineNumber: 85,
+                            columnNumber: 13
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/components/DayResultTable.tsx",
-                    lineNumber: 79,
+                    lineNumber: 83,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -454,7 +454,7 @@ function PlaceholderCell() {
                     children: "*"
                 }, void 0, false, {
                     fileName: "[project]/components/DayResultTable.tsx",
-                    lineNumber: 83,
+                    lineNumber: 88,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -463,37 +463,75 @@ function PlaceholderCell() {
                             children: c
                         }, i, false, {
                             fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 88,
-                            columnNumber: 30
+                            lineNumber: 91,
+                            columnNumber: 13
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/components/DayResultTable.tsx",
-                    lineNumber: 87,
+                    lineNumber: 89,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/DayResultTable.tsx",
-            lineNumber: 77,
+            lineNumber: 82,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/DayResultTable.tsx",
-        lineNumber: 76,
+        lineNumber: 81,
         columnNumber: 5
     }, this);
 }
 _c1 = PlaceholderCell;
+function TodayPendingCell() {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "relative bg-[#fffdf6] rounded-[6px] border border-dashed border-black/40 px-1 pt-1 pb-1.5 min-h-[56px] flex items-center justify-center",
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "min-w-[30px] text-center font-extrabold text-[14px] text-gray-400",
+            children: "—"
+        }, void 0, false, {
+            fileName: "[project]/components/DayResultTable.tsx",
+            lineNumber: 102,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "[project]/components/DayResultTable.tsx",
+        lineNumber: 101,
+        columnNumber: 5
+    }, this);
+}
+_c2 = TodayPendingCell;
+// client-side helper for optional schedule
+function isNowBeforeIST(dateStr, hhmm) {
+    if (!hhmm) return false;
+    const target = new Date("".concat(dateStr, "T").concat(hhmm, ":00+05:30"));
+    return new Date() < target;
+}
 function DayCell(param) {
-    let { it } = param;
+    let { it, today } = param;
     const haveOpen = it.openDigit != null && it.openPanna != null;
     const haveClose = it.closeDigit != null && it.closePanna != null;
     const closed = it.status === 'CLOSED' && haveOpen && haveClose;
-    // no data at all → show star placeholder (your requirement)
+    const isToday = it.sessionDate === today;
+    // if today but nothing yet (or scheduled later) → show "-"
+    if (isToday) {
+        const openScheduled = isNowBeforeIST(it.sessionDate, it.openTime);
+        const closeScheduled = isNowBeforeIST(it.sessionDate, it.closeTime);
+        const nothingYet = !haveOpen && !haveClose;
+        if (nothingYet || openScheduled || closeScheduled) {
+            return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(TodayPendingCell, {}, void 0, false, {
+                fileName: "[project]/components/DayResultTable.tsx",
+                lineNumber: 129,
+                columnNumber: 14
+            }, this);
+        }
+    }
+    // past day, no data → show star placeholder
     if (it._missing || !haveOpen && !haveClose) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(PlaceholderCell, {}, void 0, false, {
             fileName: "[project]/components/DayResultTable.tsx",
-            lineNumber: 102,
+            lineNumber: 135,
             columnNumber: 12
         }, this);
     }
@@ -508,7 +546,7 @@ function DayCell(param) {
                     panna: it.openPanna
                 }, void 0, false, {
                     fileName: "[project]/components/DayResultTable.tsx",
-                    lineNumber: 112,
+                    lineNumber: 143,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -517,29 +555,29 @@ function DayCell(param) {
                     children: center
                 }, void 0, false, {
                     fileName: "[project]/components/DayResultTable.tsx",
-                    lineNumber: 113,
+                    lineNumber: 144,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(PannaColumn, {
                     panna: it.closePanna
                 }, void 0, false, {
                     fileName: "[project]/components/DayResultTable.tsx",
-                    lineNumber: 121,
+                    lineNumber: 152,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/DayResultTable.tsx",
-            lineNumber: 111,
+            lineNumber: 142,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/DayResultTable.tsx",
-        lineNumber: 110,
+        lineNumber: 141,
         columnNumber: 5
     }, this);
 }
-_c2 = DayCell;
+_c3 = DayCell;
 function DateRangeCell(param) {
     let { start, end } = param;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -549,7 +587,7 @@ function DateRangeCell(param) {
                 children: start ? ddmmyy(start) : ''
             }, void 0, false, {
                 fileName: "[project]/components/DayResultTable.tsx",
-                lineNumber: 130,
+                lineNumber: 161,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -557,24 +595,24 @@ function DateRangeCell(param) {
                 children: "to"
             }, void 0, false, {
                 fileName: "[project]/components/DayResultTable.tsx",
-                lineNumber: 131,
+                lineNumber: 162,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 children: end ? ddmmyy(end) : ''
             }, void 0, false, {
                 fileName: "[project]/components/DayResultTable.tsx",
-                lineNumber: 132,
+                lineNumber: 163,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/DayResultTable.tsx",
-        lineNumber: 129,
+        lineNumber: 160,
         columnNumber: 5
     }, this);
 }
-_c3 = DateRangeCell;
+_c4 = DateRangeCell;
 function DayResultsTable() {
     _s();
     const { data } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"])('/api/result/history?weeks=52&side=day', fetcher);
@@ -584,13 +622,14 @@ function DayResultsTable() {
             children: "Loading day chart…"
         }, void 0, false, {
             fileName: "[project]/components/DayResultTable.tsx",
-            lineNumber: 142,
+            lineNumber: 173,
             columnNumber: 7
         }, this);
     }
     var _data_items;
     const filled = fillContinuous((_data_items = data.items) !== null && _data_items !== void 0 ? _data_items : []);
     const rows = groupIntoWeeks(filled);
+    const today = new Date().toISOString().slice(0, 10);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
         className: "max-w-5xl mx-auto px-2 md:px-3 pb-8",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -604,7 +643,7 @@ function DayResultsTable() {
                             children: "Date"
                         }, void 0, false, {
                             fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 156,
+                            lineNumber: 188,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -612,7 +651,7 @@ function DayResultsTable() {
                             children: "Mon"
                         }, void 0, false, {
                             fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 157,
+                            lineNumber: 189,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -620,7 +659,7 @@ function DayResultsTable() {
                             children: "Tue"
                         }, void 0, false, {
                             fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 158,
+                            lineNumber: 190,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -628,7 +667,7 @@ function DayResultsTable() {
                             children: "Wed"
                         }, void 0, false, {
                             fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 159,
+                            lineNumber: 191,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -636,7 +675,7 @@ function DayResultsTable() {
                             children: "Thu"
                         }, void 0, false, {
                             fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 160,
+                            lineNumber: 192,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -644,7 +683,7 @@ function DayResultsTable() {
                             children: "Fri"
                         }, void 0, false, {
                             fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 161,
+                            lineNumber: 193,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -652,7 +691,7 @@ function DayResultsTable() {
                             children: "Sat"
                         }, void 0, false, {
                             fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 162,
+                            lineNumber: 194,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -660,13 +699,13 @@ function DayResultsTable() {
                             children: "Sun"
                         }, void 0, false, {
                             fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 163,
+                            lineNumber: 195,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/DayResultTable.tsx",
-                    lineNumber: 155,
+                    lineNumber: 187,
                     columnNumber: 9
                 }, this),
                 rows.map((row, weekIdx)=>{
@@ -684,42 +723,43 @@ function DayResultsTable() {
                                         end: end
                                     }, void 0, false, {
                                         fileName: "[project]/components/DayResultTable.tsx",
-                                        lineNumber: 173,
+                                        lineNumber: 205,
                                         columnNumber: 19
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/DayResultTable.tsx",
-                                    lineNumber: 172,
+                                    lineNumber: 204,
                                     columnNumber: 17
                                 }, this),
                                 row.map((it, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(DayCell, {
-                                        it: it
+                                        it: it,
+                                        today: today
                                     }, "".concat(it.sessionDate, "-").concat(i), false, {
                                         fileName: "[project]/components/DayResultTable.tsx",
-                                        lineNumber: 176,
+                                        lineNumber: 208,
                                         columnNumber: 19
                                     }, this))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 171,
+                            lineNumber: 203,
                             columnNumber: 15
                         }, this)
                     }, "week-".concat(weekIdx), false, {
                         fileName: "[project]/components/DayResultTable.tsx",
-                        lineNumber: 170,
+                        lineNumber: 202,
                         columnNumber: 13
                     }, this);
                 })
             ]
         }, void 0, true, {
             fileName: "[project]/components/DayResultTable.tsx",
-            lineNumber: 153,
+            lineNumber: 185,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/DayResultTable.tsx",
-        lineNumber: 152,
+        lineNumber: 184,
         columnNumber: 5
     }, this);
 }
@@ -728,13 +768,14 @@ _s(DayResultsTable, "Bw9uScf/xQBWZKhLCWSR33xISM4=", false, function() {
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"]
     ];
 });
-_c4 = DayResultsTable;
-var _c, _c1, _c2, _c3, _c4;
+_c5 = DayResultsTable;
+var _c, _c1, _c2, _c3, _c4, _c5;
 __turbopack_context__.k.register(_c, "PannaColumn");
 __turbopack_context__.k.register(_c1, "PlaceholderCell");
-__turbopack_context__.k.register(_c2, "DayCell");
-__turbopack_context__.k.register(_c3, "DateRangeCell");
-__turbopack_context__.k.register(_c4, "DayResultsTable");
+__turbopack_context__.k.register(_c2, "TodayPendingCell");
+__turbopack_context__.k.register(_c3, "DayCell");
+__turbopack_context__.k.register(_c4, "DateRangeCell");
+__turbopack_context__.k.register(_c5, "DayResultsTable");
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(module, globalThis.$RefreshHelpers$);
 }
@@ -766,7 +807,6 @@ function Page() {
     const [latest, setLatest] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [showScrollTop, setShowScrollTop] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const load = async ()=>{
-        // Force DAY side
         const r = await fetch('/api/result/latest?side=day', {
             cache: 'no-store'
         });
@@ -780,7 +820,6 @@ function Page() {
             }["Page.useEffect"]);
         }
     }["Page.useEffect"], []);
-    // Handle scroll to show/hide button
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "Page.useEffect": ()=>{
             const handleScroll = {
@@ -796,6 +835,8 @@ function Page() {
             top: 0,
             behavior: 'smooth'
         });
+    // 👇 translate NEW status → what ResultRibbon expects
+    const ribbonStatus = (latest === null || latest === void 0 ? void 0 : latest.status) === 'OPEN_PUBLISHED' ? 'DAY_PUBLISHED' : latest === null || latest === void 0 ? void 0 : latest.status;
     var _latest_jodi;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
         className: "min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white",
@@ -804,12 +845,12 @@ function Page() {
                 className: "absolute top-4 right-4 z-50",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Hamburger$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 49,
+                    lineNumber: 52,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 48,
+                lineNumber: 51,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -819,12 +860,12 @@ function Page() {
                     children: "RAJASHAHI CHART"
                 }, void 0, false, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 54,
+                    lineNumber: 57,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 53,
+                lineNumber: 56,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -837,7 +878,7 @@ function Page() {
                             children: "View:"
                         }, void 0, false, {
                             fileName: "[project]/app/page.tsx",
-                            lineNumber: 62,
+                            lineNumber: 65,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -851,7 +892,7 @@ function Page() {
                                     children: "Day"
                                 }, void 0, false, {
                                     fileName: "[project]/app/page.tsx",
-                                    lineNumber: 64,
+                                    lineNumber: 67,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -861,24 +902,24 @@ function Page() {
                                     children: "Night"
                                 }, void 0, false, {
                                     fileName: "[project]/app/page.tsx",
-                                    lineNumber: 72,
+                                    lineNumber: 75,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/page.tsx",
-                            lineNumber: 63,
+                            lineNumber: 66,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 61,
+                    lineNumber: 64,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 60,
+                lineNumber: 63,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -888,12 +929,12 @@ function Page() {
                     children: "Rajashahi Day Result"
                 }, void 0, false, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 85,
+                    lineNumber: 88,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 84,
+                lineNumber: 87,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -907,7 +948,7 @@ function Page() {
                             children: "8777787777"
                         }, void 0, false, {
                             fileName: "[project]/app/page.tsx",
-                            lineNumber: 91,
+                            lineNumber: 94,
                             columnNumber: 29
                         }, this),
                         "   |   📧 Gmail Support: ",
@@ -916,18 +957,18 @@ function Page() {
                             children: "rajashahi.india@gmail.com"
                         }, void 0, false, {
                             fileName: "[project]/app/page.tsx",
-                            lineNumber: 92,
+                            lineNumber: 95,
                             columnNumber: 29
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 90,
+                    lineNumber: 93,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 89,
+                lineNumber: 92,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -944,46 +985,47 @@ function Page() {
                                 children: "RAJASHAHI DAY"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 99,
+                                lineNumber: 102,
                                 columnNumber: 11
                             }, this),
                             latest ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ResultRibbon$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                                 side: "day",
-                                status: latest === null || latest === void 0 ? void 0 : latest.status,
-                                sessionDate: latest === null || latest === void 0 ? void 0 : latest.sessionDate,
-                                dayPanna: latest === null || latest === void 0 ? void 0 : latest.dayPanna,
-                                dayDigit: latest === null || latest === void 0 ? void 0 : latest.dayDigit,
-                                // do NOT pass night fields for day view
-                                jodi: (_latest_jodi = latest === null || latest === void 0 ? void 0 : latest.jodi) !== null && _latest_jodi !== void 0 ? _latest_jodi : null,
+                                status: ribbonStatus,
+                                sessionDate: latest.sessionDate,
+                                dayPanna: latest.dayPanna,
+                                dayDigit: latest.dayDigit,
+                                dayClosePanna: latest.dayClosePanna,
+                                dayCloseDigit: latest.dayCloseDigit,
+                                jodi: (_latest_jodi = latest.jodi) !== null && _latest_jodi !== void 0 ? _latest_jodi : null,
                                 onRefresh: load
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 106,
-                                columnNumber: 1
+                                lineNumber: 109,
+                                columnNumber: 13
                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "text-center py-8 text-black font-semibold text-lg",
                                 children: "Loading…"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 118,
+                                lineNumber: 123,
                                 columnNumber: 3
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 98,
+                        lineNumber: 101,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "my-6"
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 124,
+                        lineNumber: 129,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$DayResultTable$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 126,
+                        lineNumber: 131,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -991,13 +1033,13 @@ function Page() {
                         className: "h-12"
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 128,
+                        lineNumber: 133,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 96,
+                lineNumber: 99,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1017,23 +1059,23 @@ function Page() {
                         d: "M5 10l7-7m0 0l7 7m-7-7v18"
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 149,
+                        lineNumber: 154,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 141,
+                    lineNumber: 146,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 132,
+                lineNumber: 137,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/page.tsx",
-        lineNumber: 47,
+        lineNumber: 50,
         columnNumber: 5
     }, this);
 }

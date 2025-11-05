@@ -2,98 +2,95 @@
 import { NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import Round from '@/models/Round';
+import { deriveJodi } from '@/utils/helpers';
+
+function isNowBeforeIST(sessionDate: string, hhmm?: string | null) {
+  if (!hhmm) return false;
+  const target = new Date(`${sessionDate}T${hhmm}:00+05:30`);
+  return new Date() < target;
+}
 
 export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const side = searchParams.get('side') || 'day';
+
   await dbConnect();
 
-  const url = new URL(req.url);
-  const side = url.searchParams.get('side'); // 'day' | 'night' | null
-
-  // latest round by date (and createdAt as tiebreaker)
   const round = await Round.findOne({})
     .sort({ sessionDate: -1, createdAt: -1 })
     .lean<any>();
 
   if (!round) {
-    return NextResponse.json(
-      { ok: false, error: 'No round', status: 'READY' },
-      { status: 404 }
-    );
+    return NextResponse.json({ ok: false, error: 'No round' }, { status: 404 });
   }
 
-  // ----- DAY mapping -----
-  // prefer new fields, then fall back to legacy
-  const dayOpenPanna  = round.dayOpenPanna  ?? round.dayPanna ?? null;
-  const dayOpenDigit  = round.dayOpenDigit  ?? round.dayDigit ?? null;
-  const dayClosePanna = round.dayClosePanna ?? null;
-  const dayCloseDigit = round.dayCloseDigit ?? null;
+  // DAY
+  const dayOpenTooEarly  = isNowBeforeIST(round.sessionDate, round.dayOpenTime);
+  const dayCloseTooEarly = isNowBeforeIST(round.sessionDate, round.dayCloseTime);
 
-  const haveDayOpen  = dayOpenDigit  !== null && dayOpenDigit  !== undefined;
-  const haveDayClose = dayCloseDigit !== null && dayCloseDigit !== undefined;
+  const dayOpenPannaRaw  = round.dayOpenPanna  ?? round.dayPanna ?? null;
+  const dayOpenDigitRaw  = round.dayOpenDigit  ?? round.dayDigit ?? null;
+  const dayClosePannaRaw = round.dayClosePanna ?? null;
+  const dayCloseDigitRaw = round.dayCloseDigit ?? null;
 
-  // if both present, use stored dayJodi else derive from digits
+  const dayOpenPanna  = dayOpenTooEarly  ? null : dayOpenPannaRaw;
+  const dayOpenDigit  = dayOpenTooEarly  ? null : dayOpenDigitRaw;
+  const dayClosePanna = dayCloseTooEarly ? null : dayClosePannaRaw;
+  const dayCloseDigit = dayCloseTooEarly ? null : dayCloseDigitRaw;
+
+  const haveDayOpen  = dayOpenDigit  != null;
+  const haveDayClose = dayCloseDigit != null;
+  const dayLineStatus =
+    haveDayOpen ? (haveDayClose ? 'CLOSED' : 'OPEN_PUBLISHED') : 'READY';
   const dayJodi =
     haveDayOpen && haveDayClose
-      ? (round.dayJodi ?? `${dayOpenDigit}${dayCloseDigit}`)
+      ? (round.dayJodi ?? deriveJodi(dayOpenDigit!, dayCloseDigit!) as string)
       : null;
 
-  const dayLineStatus: 'READY' | 'OPEN_PUBLISHED' | 'CLOSED' =
-    round.dayLineStatus
-      ? round.dayLineStatus
-      : haveDayOpen
-        ? (haveDayClose ? 'CLOSED' : 'OPEN_PUBLISHED')
-        : 'READY';
+  // NIGHT
+  const nightOpenTooEarly  = isNowBeforeIST(round.sessionDate, round.nightOpenTime);
+  const nightCloseTooEarly = isNowBeforeIST(round.sessionDate, round.nightCloseTime);
 
-  // ----- NIGHT mapping -----
-  const nightOpenPanna  = round.nightOpenPanna  ?? round.nightPanna ?? null;
-  const nightOpenDigit  = round.nightOpenDigit  ?? round.nightDigit ?? null;
-  const nightClosePanna = round.nightClosePanna ?? null;
-  const nightCloseDigit = round.nightCloseDigit ?? null;
+  const nightOpenPannaRaw  = round.nightOpenPanna  ?? round.nightPanna ?? null;
+  const nightOpenDigitRaw  = round.nightOpenDigit  ?? round.nightDigit ?? null;
+  const nightClosePannaRaw = round.nightClosePanna ?? null;
+  const nightCloseDigitRaw = round.nightCloseDigit ?? null;
 
-  const haveNightOpen  = nightOpenDigit  !== null && nightOpenDigit  !== undefined;
-  const haveNightClose = nightCloseDigit !== null && nightCloseDigit !== undefined;
+  const nightOpenPanna  = nightOpenTooEarly  ? null : nightOpenPannaRaw;
+  const nightOpenDigit  = nightOpenTooEarly  ? null : nightOpenDigitRaw;
+  const nightClosePanna = nightCloseTooEarly ? null : nightClosePannaRaw;
+  const nightCloseDigit = nightCloseTooEarly ? null : nightCloseDigitRaw;
 
+  const haveNightOpen  = nightOpenDigit  != null;
+  const haveNightClose = nightCloseDigit != null;
+  const nightLineStatus =
+    haveNightOpen ? (haveNightClose ? 'CLOSED' : 'OPEN_PUBLISHED') : 'READY';
   const nightJodi =
     haveNightOpen && haveNightClose
-      ? (round.nightJodi ?? `${nightOpenDigit}${nightCloseDigit}`)
+      ? (round.nightJodi ?? deriveJodi(nightOpenDigit!, nightCloseDigit!) as string)
       : null;
 
-  const nightLineStatus: 'READY' | 'OPEN_PUBLISHED' | 'CLOSED' =
-    round.nightLineStatus
-      ? round.nightLineStatus
-      : haveNightOpen
-        ? (haveNightClose ? 'CLOSED' : 'OPEN_PUBLISHED')
-        : 'READY';
-
-  // pick which side to “surface” to the old client
   if (side === 'night') {
-    // NIGHT view
     return NextResponse.json({
       ok: true,
       sessionDate: round.sessionDate,
-      status: nightLineStatus,          // 'READY' | 'OPEN_PUBLISHED' | 'CLOSED'
+      status: nightLineStatus,
       jodi: nightJodi,
-      // map to old names so your <ResultRibbon ... nightPanna= ... /> works
-      dayPanna: null,
-      dayDigit: null,
       nightPanna: nightOpenPanna,
       nightDigit: nightOpenDigit,
-      formatted: `Night ${nightOpenPanna ?? '--'}${nightClosePanna ? ' / ' + nightClosePanna : ''}`
+      nightClosePanna,
+      nightCloseDigit,
     });
   }
 
-  // default = DAY view
   return NextResponse.json({
     ok: true,
     sessionDate: round.sessionDate,
-    status: dayLineStatus,              // 'READY' | 'OPEN_PUBLISHED' | 'CLOSED'
+    status: dayLineStatus,
     jodi: dayJodi,
-    // expose day opening under old names so your page sees it:
     dayPanna: dayOpenPanna,
     dayDigit: dayOpenDigit,
-    // keep night here too because your component passes them through
-    nightPanna: nightOpenPanna,
-    nightDigit: nightOpenDigit,
-    formatted: `Day ${dayOpenPanna ?? '--'}${dayClosePanna ? ' / ' + dayClosePanna : ''}`
+    dayClosePanna,
+    dayCloseDigit,
   });
 }

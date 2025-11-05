@@ -357,9 +357,8 @@ function generateRoundId() {
 "[project]/app/api/admin/rounds/[sessionDate]/route.ts [app-route] (ecmascript)": ((__turbopack_context__) => {
 "use strict";
 
+// app/api/admin/rounds/[sessionDate]/route.ts
 __turbopack_context__.s({
-    "DELETE": ()=>DELETE,
-    "GET": ()=>GET,
     "PATCH": ()=>PATCH
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-route] (ecmascript)");
@@ -371,6 +370,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$helpers$2e$ts__$5b$
 ;
 ;
 const pad3 = (v)=>String(v ?? '').replace(/\D/g, '').slice(0, 3).padStart(3, '0');
+const hhmm = /^([01]\d|2[0-3]):[0-5]\d$/;
 function extractSessionDate(req) {
     const url = new URL(req.url);
     const rawParam = decodeURIComponent(url.pathname.split('/').pop() || '');
@@ -378,64 +378,6 @@ function extractSessionDate(req) {
     const sessionDate = raw.replace(/[^\d-]/g, '');
     if (!/^\d{4}-\d{2}-\d{2}$/.test(sessionDate)) return null;
     return sessionDate;
-}
-async function GET(req) {
-    const sessionDate = extractSessionDate(req);
-    if (!sessionDate) {
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            ok: false,
-            error: 'Bad sessionDate in URL'
-        }, {
-            status: 400
-        });
-    }
-    await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$mongodb$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["dbConnect"])();
-    const round = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({
-        sessionDate
-    }).lean();
-    if (!round) {
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            ok: false,
-            error: `No round for ${sessionDate}`
-        }, {
-            status: 404
-        });
-    }
-    // normalize like before
-    const dayOpenPanna = round.dayOpenPanna ?? round.dayPanna ?? null;
-    const dayOpenDigit = round.dayOpenDigit ?? round.dayDigit ?? null;
-    const dayClosePanna = round.dayClosePanna ?? null;
-    const dayCloseDigit = round.dayCloseDigit ?? null;
-    const haveDayOpen = dayOpenDigit != null;
-    const haveDayClose = dayCloseDigit != null;
-    const dayLineStatus = round.dayLineStatus ? round.dayLineStatus : haveDayOpen ? haveDayClose ? 'CLOSED' : 'OPEN_PUBLISHED' : 'READY';
-    const dayJodi = haveDayOpen && haveDayClose ? round.dayJodi ?? (0, __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$helpers$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["deriveJodi"])(dayOpenDigit, dayCloseDigit) : null;
-    const nightOpenPanna = round.nightOpenPanna ?? round.nightPanna ?? null;
-    const nightOpenDigit = round.nightOpenDigit ?? round.nightDigit ?? null;
-    const nightClosePanna = round.nightClosePanna ?? null;
-    const nightCloseDigit = round.nightCloseDigit ?? null;
-    const haveNightOpen = nightOpenDigit != null;
-    const haveNightClose = nightCloseDigit != null;
-    const nightLineStatus = round.nightLineStatus ? round.nightLineStatus : haveNightOpen ? haveNightClose ? 'CLOSED' : 'OPEN_PUBLISHED' : 'READY';
-    const nightJodi = haveNightOpen && haveNightClose ? round.nightJodi ?? (0, __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$helpers$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["deriveJodi"])(nightOpenDigit, nightCloseDigit) : null;
-    return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-        ok: true,
-        round: {
-            ...round,
-            dayOpenPanna,
-            dayOpenDigit,
-            dayClosePanna,
-            dayCloseDigit,
-            dayJodi,
-            dayLineStatus,
-            nightOpenPanna,
-            nightOpenDigit,
-            nightClosePanna,
-            nightCloseDigit,
-            nightJodi,
-            nightLineStatus
-        }
-    });
 }
 async function PATCH(req) {
     const sessionDate = extractSessionDate(req);
@@ -452,7 +394,7 @@ async function PATCH(req) {
     let round = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({
         sessionDate
     });
-    // if round for that date does not exist → create a basic one
+    // create round if missing
     if (!round) {
         round = new __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"]({
             roundId: 'R-' + sessionDate.replace(/-/g, ''),
@@ -462,22 +404,36 @@ async function PATCH(req) {
             status: 'READY'
         });
     }
-    // figure out what we’re setting
+    // ---------- NEW: time fields ----------
+    if (typeof body.dayOpenTime === 'string' && hhmm.test(body.dayOpenTime)) {
+        round.dayOpenTime = body.dayOpenTime;
+    }
+    if (typeof body.dayCloseTime === 'string' && hhmm.test(body.dayCloseTime)) {
+        round.dayCloseTime = body.dayCloseTime;
+    }
+    if (typeof body.nightOpenTime === 'string' && hhmm.test(body.nightOpenTime)) {
+        round.nightOpenTime = body.nightOpenTime;
+    }
+    if (typeof body.nightCloseTime === 'string' && hhmm.test(body.nightCloseTime)) {
+        round.nightCloseTime = body.nightCloseTime;
+    }
+    // figure out what we’re setting (same as before)
     const setDayLegacy = 'dayPanna' in body;
     const setNightLegacy = 'nightPanna' in body;
     const setDayOpen = 'dayOpenPanna' in body;
     const setDayClose = 'dayClosePanna' in body;
     const setNightOpen = 'nightOpenPanna' in body;
     const setNightClose = 'nightClosePanna' in body;
-    if (!setDayLegacy && !setNightLegacy && !setDayOpen && !setDayClose && !setNightOpen && !setNightClose) {
+    if (!setDayLegacy && !setNightLegacy && !setDayOpen && !setDayClose && !setNightOpen && !setNightClose && // 👆 we added times, so allow PATCH with only times
+    !('dayOpenTime' in body) && !('dayCloseTime' in body) && !('nightOpenTime' in body) && !('nightCloseTime' in body)) {
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             ok: false,
-            error: 'Provide at least one of: dayPanna, nightPanna, dayOpenPanna, dayClosePanna, nightOpenPanna, nightClosePanna'
+            error: 'Provide at least one of: dayPanna, nightPanna, dayOpenPanna, dayClosePanna, nightOpenPanna, nightClosePanna, or any of the time fields'
         }, {
             status: 400
         });
     }
-    // legacy day
+    // ----- legacy day -----
     if (setDayLegacy) {
         if (body.dayPanna === null) {
             round.dayPanna = undefined;
@@ -496,7 +452,7 @@ async function PATCH(req) {
             round.dayDigit = (0, __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$helpers$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["digitFromPanna"])(p);
         }
     }
-    // legacy night
+    // ----- legacy night -----
     if (setNightLegacy) {
         if (body.nightPanna === null) {
             round.nightPanna = undefined;
@@ -515,7 +471,7 @@ async function PATCH(req) {
             round.nightDigit = (0, __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$helpers$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["digitFromPanna"])(p);
         }
     }
-    // DAY OPEN
+    // ----- DAY OPEN -----
     if (setDayOpen) {
         if (body.dayOpenPanna === null) {
             round.dayOpenPanna = undefined;
@@ -534,7 +490,7 @@ async function PATCH(req) {
             round.dayOpenDigit = (0, __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$helpers$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["digitFromPanna"])(p);
         }
     }
-    // DAY CLOSE
+    // ----- DAY CLOSE -----
     if (setDayClose) {
         if (body.dayClosePanna === null) {
             round.dayClosePanna = undefined;
@@ -553,7 +509,7 @@ async function PATCH(req) {
             round.dayCloseDigit = (0, __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$helpers$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["digitFromPanna"])(p);
         }
     }
-    // NIGHT OPEN
+    // ----- NIGHT OPEN -----
     if (setNightOpen) {
         if (body.nightOpenPanna === null) {
             round.nightOpenPanna = undefined;
@@ -572,7 +528,7 @@ async function PATCH(req) {
             round.nightOpenDigit = (0, __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$helpers$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["digitFromPanna"])(p);
         }
     }
-    // NIGHT CLOSE
+    // ----- NIGHT CLOSE -----
     if (setNightClose) {
         if (body.nightClosePanna === null) {
             round.nightClosePanna = undefined;
@@ -627,32 +583,6 @@ async function PATCH(req) {
     return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
         ok: true,
         round
-    });
-}
-async function DELETE(req) {
-    const sessionDate = extractSessionDate(req);
-    if (!sessionDate) {
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            ok: false,
-            error: 'Bad sessionDate in URL'
-        }, {
-            status: 400
-        });
-    }
-    await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$mongodb$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["dbConnect"])();
-    const { deletedCount } = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].deleteOne({
-        sessionDate
-    });
-    if (!deletedCount) {
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            ok: false,
-            error: `No round found for ${sessionDate}`
-        }, {
-            status: 404
-        });
-    }
-    return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-        ok: true
     });
 }
 }),
