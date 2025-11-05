@@ -5,11 +5,12 @@
   "/api/admin/login/route": "app/api/admin/login/route.js",
   "/api/admin/rounds/[sessionDate]/route": "app/api/admin/rounds/[sessionDate]/route.js",
   "/api/admin/rounds/route": "app/api/admin/rounds/route.js",
-  "/api/result/day/route": "app/api/result/day/route.js",
+  "/api/result/day/open/route": "app/api/result/day/open/route.js",
   "/api/result/history/route": "app/api/result/history/route.js",
   "/api/result/latest/route": "app/api/result/latest/route.js",
-  "/api/result/night/route": "app/api/result/night/route.js",
-  "/api/round/start/route": "app/api/round/start/route.js",
+  "/api/result/night/open/route": "app/api/result/night/open/route.js",
+  "/api/round/current/route": "app/api/round/current/route.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/night/page": "app/night/page.js",
   "/page": "app/page.js"
 }

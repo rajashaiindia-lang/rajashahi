@@ -5,6 +5,7 @@ import Link from 'next/link';
 import ResultRibbon from '@/components/ResultRibbon';
 import Hamburger from '@/components/Hamburger';
 import MonthlyResultsTable from '@/components/MonthlyResultsTable';
+import DayResultsTable from '@/components/DayResultTable';
 
 type Latest = {
   // your API can keep other fields, we only use a few here:
@@ -101,31 +102,28 @@ export default function Page() {
           >
             RAJASHAHI DAY
           </div>
-          {latest ? (
- <ResultRibbon
+{latest ? (
+<ResultRibbon
   side="day"
   status={latest?.status}
   sessionDate={latest?.sessionDate}
   dayPanna={latest?.dayPanna}
   dayDigit={latest?.dayDigit}
-  nightPanna={latest?.nightPanna}   // may be undefined until night publishes
-  nightDigit={latest?.nightDigit}
-  // formatted={latest?.formatted}   // optional fallback
-  // jodi={latest?.jodi}             // optional; ribbon can derive it
+  // do NOT pass night fields for day view
+  jodi={latest?.jodi ?? null}
   onRefresh={load}
 />
 
+) : (
+  <div className="text-center py-8 text-black font-semibold text-lg">Loading…</div>
+)}
 
-          ) : (
-            <div className="text-center py-8 text-black font-semibold text-lg">Loading…</div>
-          )}
+
         </div>
 
         <div className="my-6" />
 
-        {/* Month table stays same; backend should serve day+night rows.
-            You can keep it shared between day/night routes */}
-        <MonthlyResultsTable />
+        <DayResultsTable/>
 
         <div id="bottom" className="h-12" />
       </div>

@@ -118,6 +118,7 @@ const RoundSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoo
         required: true,
         match: /^\d{4}-\d{2}-\d{2}$/
     },
+    // old
     dayTime: {
         type: String,
         required: true,
@@ -128,6 +129,102 @@ const RoundSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoo
         required: true,
         match: timeHHmm
     },
+    // new optional times
+    dayOpenTime: {
+        type: String,
+        match: timeHHmm,
+        default: undefined
+    },
+    dayCloseTime: {
+        type: String,
+        match: timeHHmm,
+        default: undefined
+    },
+    nightOpenTime: {
+        type: String,
+        match: timeHHmm,
+        default: undefined
+    },
+    nightCloseTime: {
+        type: String,
+        match: timeHHmm,
+        default: undefined
+    },
+    // DAY line
+    dayOpenPanna: {
+        type: String,
+        match: panna3,
+        default: undefined
+    },
+    dayOpenDigit: {
+        type: Number,
+        min: 0,
+        max: 9,
+        default: undefined
+    },
+    dayClosePanna: {
+        type: String,
+        match: panna3,
+        default: undefined
+    },
+    dayCloseDigit: {
+        type: Number,
+        min: 0,
+        max: 9,
+        default: undefined
+    },
+    dayJodi: {
+        type: String,
+        match: jodi2,
+        default: undefined
+    },
+    dayLineStatus: {
+        type: String,
+        enum: [
+            'READY',
+            'OPEN_PUBLISHED',
+            'CLOSED'
+        ],
+        default: 'READY'
+    },
+    // NIGHT line
+    nightOpenPanna: {
+        type: String,
+        match: panna3,
+        default: undefined
+    },
+    nightOpenDigit: {
+        type: Number,
+        min: 0,
+        max: 9,
+        default: undefined
+    },
+    nightClosePanna: {
+        type: String,
+        match: panna3,
+        default: undefined
+    },
+    nightCloseDigit: {
+        type: Number,
+        min: 0,
+        max: 9,
+        default: undefined
+    },
+    nightJodi: {
+        type: String,
+        match: jodi2,
+        default: undefined
+    },
+    nightLineStatus: {
+        type: String,
+        enum: [
+            'READY',
+            'OPEN_PUBLISHED',
+            'CLOSED'
+        ],
+        default: 'READY'
+    },
+    // legacy
     dayPanna: {
         type: String,
         match: panna3,
@@ -174,15 +271,19 @@ RoundSchema.index({
 }, {
     unique: true
 });
-// models/Round.ts (add this BEFORE export default)
+// keep your legacy pre-validate but extend it
 RoundSchema.pre('validate', function(next) {
-    // @ts-ignore – tolerate legacy fields
+    // legacy names to new names
+    // @ts-ignore
     const openingTime = this.openingTime;
     // @ts-ignore
     const closingTime = this.closingTime;
-    if (!this.dayTime && openingTime) this.dayTime = openingTime;
-    if (!this.nightTime && closingTime) this.nightTime = closingTime;
-    // Legacy result fields (best-effort)
+    // if new times missing, fall back to old ones
+    if (!this.dayOpenTime) this.dayOpenTime = this.dayTime || openingTime;
+    if (!this.dayCloseTime) this.dayCloseTime = this.dayTime || closingTime;
+    if (!this.nightOpenTime) this.nightOpenTime = this.nightTime || openingTime;
+    if (!this.nightCloseTime) this.nightCloseTime = this.nightTime || closingTime;
+    // legacy result fields
     // @ts-ignore
     const openingPanna = this.openingPanna;
     // @ts-ignore
@@ -191,14 +292,20 @@ RoundSchema.pre('validate', function(next) {
     const closingPanna = this.closingPanna;
     // @ts-ignore
     const closingDigit = this.closingDigit;
-    if (!this.dayPanna && openingPanna) this.dayPanna = openingPanna;
-    if (this.dayDigit == null && openingDigit != null) this.dayDigit = openingDigit;
-    if (!this.nightPanna && closingPanna) this.nightPanna = closingPanna;
-    if (this.nightDigit == null && closingDigit != null) this.nightDigit = closingDigit;
-    // Status bridge: allow old 'OPENING_PUBLISHED'
-    // (you already added the enum, this is just a safety)
-    // no mapping needed unless you want to force-convert:
-    // if (this.status === 'OPENING_PUBLISHED') this.status = 'DAY_PUBLISHED';
+    // map old day → dayOpen
+    if (!this.dayOpenPanna && (this.dayPanna || openingPanna)) {
+        this.dayOpenPanna = this.dayPanna || openingPanna;
+    }
+    if (this.dayOpenDigit == null && (this.dayDigit != null || openingDigit != null)) {
+        this.dayOpenDigit = this.dayDigit ?? openingDigit;
+    }
+    // map old night → nightOpen
+    if (!this.nightOpenPanna && (this.nightPanna || closingPanna)) {
+        this.nightOpenPanna = this.nightPanna || closingPanna;
+    }
+    if (this.nightOpenDigit == null && (this.nightDigit != null || closingDigit != null)) {
+        this.nightOpenDigit = this.nightDigit ?? closingDigit;
+    }
     next();
 });
 const __TURBOPACK__default__export__ = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["models"].Round || (0, __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["model"])('Round', RoundSchema);
@@ -220,30 +327,69 @@ async function GET(req) {
     await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$mongodb$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["dbConnect"])();
     const url = new URL(req.url);
     const side = url.searchParams.get('side'); // 'day' | 'night' | null
-    const round = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne().sort({
+    // latest round by date (and createdAt as tiebreaker)
+    const round = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({}).sort({
         sessionDate: -1,
         createdAt: -1
     }).lean();
-    if (!round) return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(null);
-    const haveDay = round.dayDigit !== undefined && round.dayPanna !== undefined;
-    const haveNight = round.nightDigit !== undefined && round.nightPanna !== undefined;
-    // Only show Jodi when both digits exist
-    const jodi = round.dayDigit != null && round.nightDigit != null ? `${round.dayDigit}${round.nightDigit}` : null;
-    // Optional: a formatted fallback string (UI doesn’t need it, but harmless)
-    const formatted = `(${round.dayPanna ?? '—'}) ${round.dayDigit ?? '—'} | ${round.nightDigit ?? '—'} (${round.nightPanna ?? '—'})`;
-    // Return explicit fields (nulls, not undefined) so the client can render correctly
+    if (!round) {
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            ok: false,
+            error: 'No round',
+            status: 'READY'
+        }, {
+            status: 404
+        });
+    }
+    // ----- DAY mapping -----
+    // prefer new fields, then fall back to legacy
+    const dayOpenPanna = round.dayOpenPanna ?? round.dayPanna ?? null;
+    const dayOpenDigit = round.dayOpenDigit ?? round.dayDigit ?? null;
+    const dayClosePanna = round.dayClosePanna ?? null;
+    const dayCloseDigit = round.dayCloseDigit ?? null;
+    const haveDayOpen = dayOpenDigit !== null && dayOpenDigit !== undefined;
+    const haveDayClose = dayCloseDigit !== null && dayCloseDigit !== undefined;
+    // if both present, use stored dayJodi else derive from digits
+    const dayJodi = haveDayOpen && haveDayClose ? round.dayJodi ?? `${dayOpenDigit}${dayCloseDigit}` : null;
+    const dayLineStatus = round.dayLineStatus ? round.dayLineStatus : haveDayOpen ? haveDayClose ? 'CLOSED' : 'OPEN_PUBLISHED' : 'READY';
+    // ----- NIGHT mapping -----
+    const nightOpenPanna = round.nightOpenPanna ?? round.nightPanna ?? null;
+    const nightOpenDigit = round.nightOpenDigit ?? round.nightDigit ?? null;
+    const nightClosePanna = round.nightClosePanna ?? null;
+    const nightCloseDigit = round.nightCloseDigit ?? null;
+    const haveNightOpen = nightOpenDigit !== null && nightOpenDigit !== undefined;
+    const haveNightClose = nightCloseDigit !== null && nightCloseDigit !== undefined;
+    const nightJodi = haveNightOpen && haveNightClose ? round.nightJodi ?? `${nightOpenDigit}${nightCloseDigit}` : null;
+    const nightLineStatus = round.nightLineStatus ? round.nightLineStatus : haveNightOpen ? haveNightClose ? 'CLOSED' : 'OPEN_PUBLISHED' : 'READY';
+    // pick which side to “surface” to the old client
+    if (side === 'night') {
+        // NIGHT view
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            ok: true,
+            sessionDate: round.sessionDate,
+            status: nightLineStatus,
+            jodi: nightJodi,
+            // map to old names so your <ResultRibbon ... nightPanna= ... /> works
+            dayPanna: null,
+            dayDigit: null,
+            nightPanna: nightOpenPanna,
+            nightDigit: nightOpenDigit,
+            formatted: `Night ${nightOpenPanna ?? '--'}${nightClosePanna ? ' / ' + nightClosePanna : ''}`
+        });
+    }
+    // default = DAY view
     return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+        ok: true,
         sessionDate: round.sessionDate,
-        status: round.status === 'OPENING_PUBLISHED' ? 'DAY_PUBLISHED' : round.status,
-        jodi,
-        formatted,
-        dayPanna: round.dayPanna ?? null,
-        dayDigit: round.dayDigit ?? null,
-        nightPanna: round.nightPanna ?? null,
-        nightDigit: round.nightDigit ?? null,
-        side: side ?? null,
-        haveDay,
-        haveNight
+        status: dayLineStatus,
+        jodi: dayJodi,
+        // expose day opening under old names so your page sees it:
+        dayPanna: dayOpenPanna,
+        dayDigit: dayOpenDigit,
+        // keep night here too because your component passes them through
+        nightPanna: nightOpenPanna,
+        nightDigit: nightOpenDigit,
+        formatted: `Day ${dayOpenPanna ?? '--'}${dayClosePanna ? ' / ' + dayClosePanna : ''}`
     });
 }
 }),

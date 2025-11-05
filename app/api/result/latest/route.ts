@@ -9,40 +9,91 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const side = url.searchParams.get('side'); // 'day' | 'night' | null
 
-  const round = await Round.findOne().sort({ sessionDate: -1, createdAt: -1 }).lean<{
-    sessionDate: string;
-    status: 'READY' | 'DAY_PUBLISHED' | 'CLOSED' | 'OPENING_PUBLISHED';
-    dayPanna?: string;
-    dayDigit?: number;
-    nightPanna?: string;
-    nightDigit?: number;
-  }>();
+  // latest round by date (and createdAt as tiebreaker)
+  const round = await Round.findOne({})
+    .sort({ sessionDate: -1, createdAt: -1 })
+    .lean<any>();
 
-  if (!round) return NextResponse.json(null);
+  if (!round) {
+    return NextResponse.json(
+      { ok: false, error: 'No round', status: 'READY' },
+      { status: 404 }
+    );
+  }
 
-  const haveDay   = round.dayDigit   !== undefined && round.dayPanna   !== undefined;
-  const haveNight = round.nightDigit !== undefined && round.nightPanna !== undefined;
+  // ----- DAY mapping -----
+  // prefer new fields, then fall back to legacy
+  const dayOpenPanna  = round.dayOpenPanna  ?? round.dayPanna ?? null;
+  const dayOpenDigit  = round.dayOpenDigit  ?? round.dayDigit ?? null;
+  const dayClosePanna = round.dayClosePanna ?? null;
+  const dayCloseDigit = round.dayCloseDigit ?? null;
 
-  // Only show Jodi when both digits exist
-  const jodi = (round.dayDigit != null && round.nightDigit != null)
-    ? `${round.dayDigit}${round.nightDigit}`
-    : null;
+  const haveDayOpen  = dayOpenDigit  !== null && dayOpenDigit  !== undefined;
+  const haveDayClose = dayCloseDigit !== null && dayCloseDigit !== undefined;
 
-  // Optional: a formatted fallback string (UI doesn’t need it, but harmless)
-  const formatted = `(${round.dayPanna ?? '—'}) ${round.dayDigit ?? '—'} | ${round.nightDigit ?? '—'} (${round.nightPanna ?? '—'})`;
+  // if both present, use stored dayJodi else derive from digits
+  const dayJodi =
+    haveDayOpen && haveDayClose
+      ? (round.dayJodi ?? `${dayOpenDigit}${dayCloseDigit}`)
+      : null;
 
-  // Return explicit fields (nulls, not undefined) so the client can render correctly
+  const dayLineStatus: 'READY' | 'OPEN_PUBLISHED' | 'CLOSED' =
+    round.dayLineStatus
+      ? round.dayLineStatus
+      : haveDayOpen
+        ? (haveDayClose ? 'CLOSED' : 'OPEN_PUBLISHED')
+        : 'READY';
+
+  // ----- NIGHT mapping -----
+  const nightOpenPanna  = round.nightOpenPanna  ?? round.nightPanna ?? null;
+  const nightOpenDigit  = round.nightOpenDigit  ?? round.nightDigit ?? null;
+  const nightClosePanna = round.nightClosePanna ?? null;
+  const nightCloseDigit = round.nightCloseDigit ?? null;
+
+  const haveNightOpen  = nightOpenDigit  !== null && nightOpenDigit  !== undefined;
+  const haveNightClose = nightCloseDigit !== null && nightCloseDigit !== undefined;
+
+  const nightJodi =
+    haveNightOpen && haveNightClose
+      ? (round.nightJodi ?? `${nightOpenDigit}${nightCloseDigit}`)
+      : null;
+
+  const nightLineStatus: 'READY' | 'OPEN_PUBLISHED' | 'CLOSED' =
+    round.nightLineStatus
+      ? round.nightLineStatus
+      : haveNightOpen
+        ? (haveNightClose ? 'CLOSED' : 'OPEN_PUBLISHED')
+        : 'READY';
+
+  // pick which side to “surface” to the old client
+  if (side === 'night') {
+    // NIGHT view
+    return NextResponse.json({
+      ok: true,
+      sessionDate: round.sessionDate,
+      status: nightLineStatus,          // 'READY' | 'OPEN_PUBLISHED' | 'CLOSED'
+      jodi: nightJodi,
+      // map to old names so your <ResultRibbon ... nightPanna= ... /> works
+      dayPanna: null,
+      dayDigit: null,
+      nightPanna: nightOpenPanna,
+      nightDigit: nightOpenDigit,
+      formatted: `Night ${nightOpenPanna ?? '--'}${nightClosePanna ? ' / ' + nightClosePanna : ''}`
+    });
+  }
+
+  // default = DAY view
   return NextResponse.json({
+    ok: true,
     sessionDate: round.sessionDate,
-    status: round.status === 'OPENING_PUBLISHED' ? 'DAY_PUBLISHED' : round.status, // legacy bridge
-    jodi,
-    formatted,
-    dayPanna: round.dayPanna ?? null,
-    dayDigit: round.dayDigit ?? null,
-    nightPanna: round.nightPanna ?? null,
-    nightDigit: round.nightDigit ?? null,
-    side: side ?? null,
-    haveDay,
-    haveNight,
+    status: dayLineStatus,              // 'READY' | 'OPEN_PUBLISHED' | 'CLOSED'
+    jodi: dayJodi,
+    // expose day opening under old names so your page sees it:
+    dayPanna: dayOpenPanna,
+    dayDigit: dayOpenDigit,
+    // keep night here too because your component passes them through
+    nightPanna: nightOpenPanna,
+    nightDigit: nightOpenDigit,
+    formatted: `Day ${dayOpenPanna ?? '--'}${dayClosePanna ? ' / ' + dayClosePanna : ''}`
   });
 }

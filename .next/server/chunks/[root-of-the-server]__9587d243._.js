@@ -118,6 +118,7 @@ const RoundSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoo
         required: true,
         match: /^\d{4}-\d{2}-\d{2}$/
     },
+    // old
     dayTime: {
         type: String,
         required: true,
@@ -128,6 +129,102 @@ const RoundSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoo
         required: true,
         match: timeHHmm
     },
+    // new optional times
+    dayOpenTime: {
+        type: String,
+        match: timeHHmm,
+        default: undefined
+    },
+    dayCloseTime: {
+        type: String,
+        match: timeHHmm,
+        default: undefined
+    },
+    nightOpenTime: {
+        type: String,
+        match: timeHHmm,
+        default: undefined
+    },
+    nightCloseTime: {
+        type: String,
+        match: timeHHmm,
+        default: undefined
+    },
+    // DAY line
+    dayOpenPanna: {
+        type: String,
+        match: panna3,
+        default: undefined
+    },
+    dayOpenDigit: {
+        type: Number,
+        min: 0,
+        max: 9,
+        default: undefined
+    },
+    dayClosePanna: {
+        type: String,
+        match: panna3,
+        default: undefined
+    },
+    dayCloseDigit: {
+        type: Number,
+        min: 0,
+        max: 9,
+        default: undefined
+    },
+    dayJodi: {
+        type: String,
+        match: jodi2,
+        default: undefined
+    },
+    dayLineStatus: {
+        type: String,
+        enum: [
+            'READY',
+            'OPEN_PUBLISHED',
+            'CLOSED'
+        ],
+        default: 'READY'
+    },
+    // NIGHT line
+    nightOpenPanna: {
+        type: String,
+        match: panna3,
+        default: undefined
+    },
+    nightOpenDigit: {
+        type: Number,
+        min: 0,
+        max: 9,
+        default: undefined
+    },
+    nightClosePanna: {
+        type: String,
+        match: panna3,
+        default: undefined
+    },
+    nightCloseDigit: {
+        type: Number,
+        min: 0,
+        max: 9,
+        default: undefined
+    },
+    nightJodi: {
+        type: String,
+        match: jodi2,
+        default: undefined
+    },
+    nightLineStatus: {
+        type: String,
+        enum: [
+            'READY',
+            'OPEN_PUBLISHED',
+            'CLOSED'
+        ],
+        default: 'READY'
+    },
+    // legacy
     dayPanna: {
         type: String,
         match: panna3,
@@ -174,15 +271,19 @@ RoundSchema.index({
 }, {
     unique: true
 });
-// models/Round.ts (add this BEFORE export default)
+// keep your legacy pre-validate but extend it
 RoundSchema.pre('validate', function(next) {
-    // @ts-ignore – tolerate legacy fields
+    // legacy names to new names
+    // @ts-ignore
     const openingTime = this.openingTime;
     // @ts-ignore
     const closingTime = this.closingTime;
-    if (!this.dayTime && openingTime) this.dayTime = openingTime;
-    if (!this.nightTime && closingTime) this.nightTime = closingTime;
-    // Legacy result fields (best-effort)
+    // if new times missing, fall back to old ones
+    if (!this.dayOpenTime) this.dayOpenTime = this.dayTime || openingTime;
+    if (!this.dayCloseTime) this.dayCloseTime = this.dayTime || closingTime;
+    if (!this.nightOpenTime) this.nightOpenTime = this.nightTime || openingTime;
+    if (!this.nightCloseTime) this.nightCloseTime = this.nightTime || closingTime;
+    // legacy result fields
     // @ts-ignore
     const openingPanna = this.openingPanna;
     // @ts-ignore
@@ -191,14 +292,20 @@ RoundSchema.pre('validate', function(next) {
     const closingPanna = this.closingPanna;
     // @ts-ignore
     const closingDigit = this.closingDigit;
-    if (!this.dayPanna && openingPanna) this.dayPanna = openingPanna;
-    if (this.dayDigit == null && openingDigit != null) this.dayDigit = openingDigit;
-    if (!this.nightPanna && closingPanna) this.nightPanna = closingPanna;
-    if (this.nightDigit == null && closingDigit != null) this.nightDigit = closingDigit;
-    // Status bridge: allow old 'OPENING_PUBLISHED'
-    // (you already added the enum, this is just a safety)
-    // no mapping needed unless you want to force-convert:
-    // if (this.status === 'OPENING_PUBLISHED') this.status = 'DAY_PUBLISHED';
+    // map old day → dayOpen
+    if (!this.dayOpenPanna && (this.dayPanna || openingPanna)) {
+        this.dayOpenPanna = this.dayPanna || openingPanna;
+    }
+    if (this.dayOpenDigit == null && (this.dayDigit != null || openingDigit != null)) {
+        this.dayOpenDigit = this.dayDigit ?? openingDigit;
+    }
+    // map old night → nightOpen
+    if (!this.nightOpenPanna && (this.nightPanna || closingPanna)) {
+        this.nightOpenPanna = this.nightPanna || closingPanna;
+    }
+    if (this.nightOpenDigit == null && (this.nightDigit != null || closingDigit != null)) {
+        this.nightOpenDigit = this.nightDigit ?? closingDigit;
+    }
     next();
 });
 const __TURBOPACK__default__export__ = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["models"].Round || (0, __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["model"])('Round', RoundSchema);
@@ -216,6 +323,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$a
 ;
 ;
 ;
+// helper to get month range
 function monthBounds(yyyyMM) {
     const [Y, M] = yyyyMM.split('-').map(Number);
     const start = new Date(Date.UTC(Y, M - 1, 1, 0, 0, 0));
@@ -227,7 +335,7 @@ function monthBounds(yyyyMM) {
         hi
     };
 }
-function addDays(d, n) {
+function addDaysUTC(d, n) {
     const x = new Date(d);
     x.setUTCDate(x.getUTCDate() + n);
     return x;
@@ -235,47 +343,114 @@ function addDays(d, n) {
 async function GET(req) {
     await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$mongodb$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["dbConnect"])();
     const { searchParams } = new URL(req.url);
-    const month = searchParams.get('month'); // e.g. '2025-10'
-    const limit = Number(searchParams.get('limit') ?? 0);
-    const weeksParam = searchParams.get('weeks'); // e.g. '24'
-    const endParam = searchParams.get('end'); // e.g. '2025-10-18'
+    const month = searchParams.get('month'); // 'YYYY-MM'
+    const limitRaw = searchParams.get('limit');
+    const weeksRaw = searchParams.get('weeks'); // '24'
+    const endParam = searchParams.get('end'); // 'YYYY-MM-DD'
+    const side = searchParams.get('side'); // 'day' | 'night' | null
+    const limit = Number(limitRaw ?? 0);
     const filter = {};
     let lo;
     let hi;
     if (month) {
-        const b = monthBounds(month);
-        lo = b.lo;
-        hi = b.hi;
-    } else if (weeksParam) {
-        const weeks = Math.max(1, Math.min(52, Number(weeksParam) || 24));
-        // latest sessionDate as end if not provided
+        // month mode
+        const { lo: _lo, hi: _hi } = monthBounds(month);
+        lo = _lo;
+        hi = _hi;
+    } else if (weeksRaw) {
+        // weeks mode (like your previous code)
+        const weeks = Math.max(1, Math.min(52, Number(weeksRaw) || 24));
+        // figure out latest sessionDate as end (or use ?end=)
         const latest = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({}).sort({
             sessionDate: -1
         }).select('sessionDate').lean();
         const endDateStr = endParam || latest?.sessionDate;
-        if (!endDateStr) return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            items: []
-        });
+        if (!endDateStr) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                items: []
+            });
+        }
         const end = new Date(`${endDateStr}T00:00:00Z`);
-        const start = addDays(end, -(weeks * 7) + 1);
+        const start = addDaysUTC(end, -(weeks * 7) + 1);
         lo = start.toISOString().slice(0, 10);
-        hi = addDays(end, 1).toISOString().slice(0, 10);
+        hi = addDaysUTC(end, 1).toISOString().slice(0, 10);
     }
-    if (lo && hi) filter.sessionDate = {
-        $gte: lo,
-        $lt: hi
-    };
+    if (lo && hi) {
+        filter.sessionDate = {
+            $gte: lo,
+            $lt: hi
+        };
+    }
+    // pull all needed fields, including the new ones
     const rounds = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find(filter).sort({
         sessionDate: 1
-    }).select('sessionDate dayPanna dayDigit nightPanna nightDigit jodi status').lean();
-    const items = month || weeksParam || !limit ? rounds : rounds.slice(-limit);
-    // Bridge legacy OPENING_PUBLISHED -> DAY_PUBLISHED for the UI
-    const mapped = items.map((it)=>({
-            ...it,
-            status: it.status === 'OPENING_PUBLISHED' ? 'DAY_PUBLISHED' : it.status
-        }));
+    }).select('sessionDate ' + 'dayOpenPanna dayOpenDigit dayClosePanna dayCloseDigit dayJodi dayLineStatus ' + 'nightOpenPanna nightOpenDigit nightClosePanna nightCloseDigit nightJodi nightLineStatus ' + // legacy
+    'dayPanna dayDigit nightPanna nightDigit jodi status').lean();
+    // now map to a consistent shape
+    const mapped = rounds.map((r)=>{
+        // ----- DAY LINE -----
+        // try new fields first, then fall back to legacy
+        const dayOpenPanna = r.dayOpenPanna ?? r.dayPanna ?? null;
+        const dayOpenDigit = r.dayOpenDigit ?? r.dayDigit ?? null;
+        const dayClosePanna = r.dayClosePanna ?? null;
+        const dayCloseDigit = r.dayCloseDigit ?? null;
+        // if both open+close exist, prefer stored dayJodi, else derive from digits
+        const haveDayOpen = dayOpenDigit !== null && dayOpenDigit !== undefined;
+        const haveDayClose = dayCloseDigit !== null && dayCloseDigit !== undefined;
+        const dayJodi = haveDayOpen && haveDayClose ? r.dayJodi ?? `${dayOpenDigit}${dayCloseDigit}` : null;
+        // a status for day-line, default to READY
+        const dayLineStatus = r.dayLineStatus ? r.dayLineStatus : haveDayOpen ? haveDayClose ? 'CLOSED' : 'OPEN_PUBLISHED' : 'READY';
+        // ----- NIGHT LINE -----
+        const nightOpenPanna = r.nightOpenPanna ?? r.nightPanna ?? null;
+        const nightOpenDigit = r.nightOpenDigit ?? r.nightDigit ?? null;
+        const nightClosePanna = r.nightClosePanna ?? null;
+        const nightCloseDigit = r.nightCloseDigit ?? null;
+        const haveNightOpen = nightOpenDigit !== null && nightOpenDigit !== undefined;
+        const haveNightClose = nightCloseDigit !== null && nightCloseDigit !== undefined;
+        const nightJodi = haveNightOpen && haveNightClose ? r.nightJodi ?? `${nightOpenDigit}${nightCloseDigit}` : null;
+        const nightLineStatus = r.nightLineStatus ? r.nightLineStatus : haveNightOpen ? haveNightClose ? 'CLOSED' : 'OPEN_PUBLISHED' : 'READY';
+        // legacy bridge for top-level status (UI that still reads r.status)
+        const topStatus = r.status === 'OPENING_PUBLISHED' ? 'DAY_PUBLISHED' : r.status;
+        return {
+            sessionDate: r.sessionDate,
+            status: topStatus,
+            day: {
+                openPanna: dayOpenPanna,
+                openDigit: dayOpenDigit,
+                closePanna: dayClosePanna,
+                closeDigit: dayCloseDigit,
+                jodi: dayJodi,
+                status: dayLineStatus
+            },
+            night: {
+                openPanna: nightOpenPanna,
+                openDigit: nightOpenDigit,
+                closePanna: nightClosePanna,
+                closeDigit: nightCloseDigit,
+                jodi: nightJodi,
+                status: nightLineStatus
+            }
+        };
+    });
+    // allow side=day or side=night for simpler components
+    let items = mapped;
+    if (side === 'day') {
+        items = mapped.map((m)=>({
+                sessionDate: m.sessionDate,
+                ...m.day
+            }));
+    } else if (side === 'night') {
+        items = mapped.map((m)=>({
+                sessionDate: m.sessionDate,
+                ...m.night
+            }));
+    }
+    // keep your old behaviour: if no month/weeks and limit is set, slice from the end
+    if (!month && !weeksRaw && limit && items.length > limit) {
+        items = items.slice(-limit);
+    }
     return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-        items: mapped
+        items
     });
 }
 }),

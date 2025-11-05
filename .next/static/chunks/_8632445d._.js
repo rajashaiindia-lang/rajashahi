@@ -620,8 +620,11 @@ function AdminPanel() {
     const [sessionDate, setSessionDate] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(new Date().toISOString().slice(0, 10));
     const [dayTime, setDayTime] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('16:15');
     const [nightTime, setNightTime] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('18:15');
-    const [dayP, setDayP] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
-    const [nightP, setNightP] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
+    // four inputs
+    const [dayOpenP, setDayOpenP] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
+    const [dayCloseP, setDayCloseP] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
+    const [nightOpenP, setNightOpenP] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
+    const [nightCloseP, setNightCloseP] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
     const load = async ()=>{
         const r = await fetch('/api/round/current', {
             cache: 'no-store'
@@ -673,67 +676,136 @@ function AdminPanel() {
             setRound(d.round || null);
             setSuccess('Round started successfully!');
         });
-    const publishDay = ()=>withBusy(async ()=>{
-            const panna = dayP.trim() ? pad3(dayP) : randPanna();
+    // --- NEW: day open publisher ---
+    const publishDayOpen = ()=>withBusy(async ()=>{
+            const panna = dayOpenP.trim() ? pad3(dayOpenP) : randPanna();
             if (!/^\d{3}$/.test(panna)) {
-                setErr('Day panna must be 3 digits');
+                setErr('Day opening panna must be 3 digits');
                 return;
             }
-            const r = await fetch('/api/result/day', {
+            const r = await fetch('/api/result/day/open', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    dayPanna: panna
+                    panna
                 })
             });
             const d = await r.json();
             if (!r.ok) {
-                setErr(d.error || 'Failed to publish day');
+                setErr(d.error || 'Failed to publish day opening');
                 return;
             }
             setRound(d.round || null);
-            setDayP('');
-            setSuccess('Day published successfully!');
+            setDayOpenP('');
+            setSuccess('Day opening published!');
         });
-    const publishNight = ()=>withBusy(async ()=>{
-            const panna = nightP.trim() ? pad3(nightP) : randPanna();
+    // --- NEW: day close publisher ---
+    const publishDayClose = ()=>withBusy(async ()=>{
+            const panna = dayCloseP.trim() ? pad3(dayCloseP) : randPanna();
             if (!/^\d{3}$/.test(panna)) {
-                setErr('Night panna must be 3 digits');
+                setErr('Day closing panna must be 3 digits');
                 return;
             }
-            const r = await fetch('/api/result/night', {
+            const r = await fetch('/api/result/day/close', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    nightPanna: panna
+                    panna
                 })
             });
             const d = await r.json();
             if (!r.ok) {
-                setErr(d.error || 'Failed to publish night');
+                setErr(d.error || 'Failed to publish day closing');
                 return;
             }
             setRound(d.round || null);
-            setNightP('');
-            setSuccess('Night published successfully!');
+            setDayCloseP('');
+            setSuccess('Day closing published!');
         });
-    const resultLine = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
-        "AdminPanel.useMemo[resultLine]": ()=>{
-            var _round_dayPanna;
-            const dp = (_round_dayPanna = round === null || round === void 0 ? void 0 : round.dayPanna) !== null && _round_dayPanna !== void 0 ? _round_dayPanna : '—';
-            var _round_dayDigit;
-            const dd = (_round_dayDigit = round === null || round === void 0 ? void 0 : round.dayDigit) !== null && _round_dayDigit !== void 0 ? _round_dayDigit : '—';
-            var _round_nightDigit;
-            const nd = (_round_nightDigit = round === null || round === void 0 ? void 0 : round.nightDigit) !== null && _round_nightDigit !== void 0 ? _round_nightDigit : '—';
-            var _round_nightPanna;
-            const np = (_round_nightPanna = round === null || round === void 0 ? void 0 : round.nightPanna) !== null && _round_nightPanna !== void 0 ? _round_nightPanna : '—';
-            return "(".concat(dp, ") ").concat(dd, " | ").concat(nd, " (").concat(np, ")");
+    // --- NEW: night open publisher ---
+    const publishNightOpen = ()=>withBusy(async ()=>{
+            const panna = nightOpenP.trim() ? pad3(nightOpenP) : randPanna();
+            if (!/^\d{3}$/.test(panna)) {
+                setErr('Night opening panna must be 3 digits');
+                return;
+            }
+            const r = await fetch('/api/result/night/open', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    panna
+                })
+            });
+            const d = await r.json();
+            if (!r.ok) {
+                setErr(d.error || 'Failed to publish night opening');
+                return;
+            }
+            setRound(d.round || null);
+            setNightOpenP('');
+            setSuccess('Night opening published!');
+        });
+    // --- NEW: night close publisher ---
+    const publishNightClose = ()=>withBusy(async ()=>{
+            const panna = nightCloseP.trim() ? pad3(nightCloseP) : randPanna();
+            if (!/^\d{3}$/.test(panna)) {
+                setErr('Night closing panna must be 3 digits');
+                return;
+            }
+            const r = await fetch('/api/result/night/close', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    panna
+                })
+            });
+            const d = await r.json();
+            if (!r.ok) {
+                setErr(d.error || 'Failed to publish night closing');
+                return;
+            }
+            setRound(d.round || null);
+            setNightCloseP('');
+            setSuccess('Night closing published!');
+        });
+    // show current day line
+    const dayLine = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "AdminPanel.useMemo[dayLine]": ()=>{
+            var _round_dayOpenPanna, _ref;
+            const op = (_ref = (_round_dayOpenPanna = round === null || round === void 0 ? void 0 : round.dayOpenPanna) !== null && _round_dayOpenPanna !== void 0 ? _round_dayOpenPanna : round === null || round === void 0 ? void 0 : round.dayPanna) !== null && _ref !== void 0 ? _ref : '—';
+            var _round_dayOpenDigit, _ref1;
+            const od = (_ref1 = (_round_dayOpenDigit = round === null || round === void 0 ? void 0 : round.dayOpenDigit) !== null && _round_dayOpenDigit !== void 0 ? _round_dayOpenDigit : round === null || round === void 0 ? void 0 : round.dayDigit) !== null && _ref1 !== void 0 ? _ref1 : '—';
+            var _round_dayCloseDigit;
+            const cd = (_round_dayCloseDigit = round === null || round === void 0 ? void 0 : round.dayCloseDigit) !== null && _round_dayCloseDigit !== void 0 ? _round_dayCloseDigit : '—';
+            var _round_dayClosePanna;
+            const cp = (_round_dayClosePanna = round === null || round === void 0 ? void 0 : round.dayClosePanna) !== null && _round_dayClosePanna !== void 0 ? _round_dayClosePanna : '—';
+            return "(".concat(op, ") ").concat(od, " | ").concat(cd, " (").concat(cp, ")");
         }
-    }["AdminPanel.useMemo[resultLine]"], [
+    }["AdminPanel.useMemo[dayLine]"], [
+        round
+    ]);
+    // show current night line
+    const nightLine = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "AdminPanel.useMemo[nightLine]": ()=>{
+            var _round_nightOpenPanna, _ref;
+            const op = (_ref = (_round_nightOpenPanna = round === null || round === void 0 ? void 0 : round.nightOpenPanna) !== null && _round_nightOpenPanna !== void 0 ? _round_nightOpenPanna : round === null || round === void 0 ? void 0 : round.nightPanna) !== null && _ref !== void 0 ? _ref : '—';
+            var _round_nightOpenDigit, _ref1;
+            const od = (_ref1 = (_round_nightOpenDigit = round === null || round === void 0 ? void 0 : round.nightOpenDigit) !== null && _round_nightOpenDigit !== void 0 ? _round_nightOpenDigit : round === null || round === void 0 ? void 0 : round.nightDigit) !== null && _ref1 !== void 0 ? _ref1 : '—';
+            var _round_nightCloseDigit;
+            const cd = (_round_nightCloseDigit = round === null || round === void 0 ? void 0 : round.nightCloseDigit) !== null && _round_nightCloseDigit !== void 0 ? _round_nightCloseDigit : '—';
+            var _round_nightClosePanna;
+            const cp = (_round_nightClosePanna = round === null || round === void 0 ? void 0 : round.nightClosePanna) !== null && _round_nightClosePanna !== void 0 ? _round_nightClosePanna : '—';
+            return "(".concat(op, ") ").concat(od, " | ").concat(cd, " (").concat(cp, ")");
+        }
+    }["AdminPanel.useMemo[nightLine]"], [
         round
     ]);
     const getStatusBadge = (status)=>{
@@ -748,7 +820,12 @@ function AdminPanel() {
                 return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
         }
     };
-    var _round_jodi, _round_roundId_slice, _round_sessionDate, _round_dayTime, _round_nightTime, _round_status;
+    // helpers to know what to show
+    const dayOpenDone = !!(round === null || round === void 0 ? void 0 : round.dayOpenDigit);
+    const dayCloseDone = !!(round === null || round === void 0 ? void 0 : round.dayCloseDigit);
+    const nightOpenDone = !!(round === null || round === void 0 ? void 0 : round.nightOpenDigit);
+    const nightCloseDone = !!(round === null || round === void 0 ? void 0 : round.nightCloseDigit);
+    var _round_dayJodi, _round_nightJodi, _round_roundId_slice, _round_sessionDate, _round_dayTime, _round_nightTime, _round_status;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -768,22 +845,22 @@ function AdminPanel() {
                                             children: "← Back"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/dashboard/page.tsx",
-                                            lineNumber: 115,
-                                            columnNumber: 13
+                                            lineNumber: 237,
+                                            columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
                                             className: "text-4xl font-extrabold tracking-wider bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-300 bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]",
                                             children: "ADMIN PANEL"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/dashboard/page.tsx",
-                                            lineNumber: 121,
-                                            columnNumber: 13
+                                            lineNumber: 243,
+                                            columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/admin/dashboard/page.tsx",
-                                    lineNumber: 114,
-                                    columnNumber: 11
+                                    lineNumber: 236,
+                                    columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "flex gap-3",
@@ -795,8 +872,8 @@ function AdminPanel() {
                                             children: "🔄 Refresh"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/dashboard/page.tsx",
-                                            lineNumber: 126,
-                                            columnNumber: 3
+                                            lineNumber: 248,
+                                            columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                             onClick: async ()=>{
@@ -807,7 +884,7 @@ function AdminPanel() {
                                                     });
                                                 } catch (e) {} finally{
                                                     setBusy(false);
-                                                    window.location.href = '/admin'; // Redirect to login
+                                                    window.location.href = '/admin';
                                                 }
                                             },
                                             className: "px-4 py-2 rounded-lg bg-red-500/20 border border-red-500/40 hover:bg-red-500/30 transition-all text-red-200 font-semibold",
@@ -815,25 +892,25 @@ function AdminPanel() {
                                             children: "🚪 Logout"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/dashboard/page.tsx",
-                                            lineNumber: 134,
-                                            columnNumber: 3
+                                            lineNumber: 256,
+                                            columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/admin/dashboard/page.tsx",
-                                    lineNumber: 125,
-                                    columnNumber: 7
+                                    lineNumber: 247,
+                                    columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/admin/dashboard/page.tsx",
-                            lineNumber: 113,
-                            columnNumber: 9
+                            lineNumber: 235,
+                            columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                        lineNumber: 112,
-                        columnNumber: 7
+                        lineNumber: 234,
+                        columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "max-w-6xl mx-auto p-4 space-y-6 mt-6",
@@ -846,8 +923,8 @@ function AdminPanel() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                lineNumber: 158,
-                                columnNumber: 11
+                                lineNumber: 279,
+                                columnNumber: 13
                             }, this),
                             success && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "bg-green-500/10 border-2 border-green-500 rounded-lg p-4 text-green-200",
@@ -857,58 +934,125 @@ function AdminPanel() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                lineNumber: 163,
-                                columnNumber: 11
+                                lineNumber: 284,
+                                columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-300 text-black rounded-xl p-6 border-4 border-red-800 shadow-[0_8px_16px_rgba(0,0,0,0.3),inset_0_2px_8px_rgba(255,255,255,0.3)]",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "text-center",
+                                    className: "text-center space-y-4",
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                                            className: "text-2xl font-bold text-red-800 mb-4",
-                                            children: "Current Result"
+                                            className: "text-2xl font-bold text-red-800 mb-2",
+                                            children: "Current Results"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/dashboard/page.tsx",
-                                            lineNumber: 171,
-                                            columnNumber: 13
+                                            lineNumber: 292,
+                                            columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "text-4xl font-mono font-bold tracking-wider mb-3",
-                                            children: resultLine
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/admin/dashboard/page.tsx",
-                                            lineNumber: 172,
-                                            columnNumber: 13
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "text-xl font-semibold",
                                             children: [
-                                                "Jodi: ",
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    className: "text-red-800 text-2xl",
-                                                    children: (_round_jodi = round === null || round === void 0 ? void 0 : round.jodi) !== null && _round_jodi !== void 0 ? _round_jodi : '—'
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "text-sm font-semibold text-red-900/80 mb-1",
+                                                    children: "Day"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                    lineNumber: 176,
-                                                    columnNumber: 21
+                                                    lineNumber: 295,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "text-3xl font-mono font-bold tracking-wider mb-1",
+                                                    children: dayLine
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/admin/dashboard/page.tsx",
+                                                    lineNumber: 296,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "text-lg font-semibold",
+                                                    children: [
+                                                        "Day Jodi:",
+                                                        ' ',
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "text-red-800 text-2xl",
+                                                            children: (_round_dayJodi = round === null || round === void 0 ? void 0 : round.dayJodi) !== null && _round_dayJodi !== void 0 ? _round_dayJodi : '—'
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/admin/dashboard/page.tsx",
+                                                            lineNumber: 301,
+                                                            columnNumber: 19
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/app/admin/dashboard/page.tsx",
+                                                    lineNumber: 299,
+                                                    columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/admin/dashboard/page.tsx",
-                                            lineNumber: 175,
-                                            columnNumber: 13
+                                            lineNumber: 294,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "h-px bg-red-800/40"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/admin/dashboard/page.tsx",
+                                            lineNumber: 305,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "text-sm font-semibold text-red-900/80 mb-1",
+                                                    children: "Night"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/admin/dashboard/page.tsx",
+                                                    lineNumber: 308,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "text-3xl font-mono font-bold tracking-wider mb-1",
+                                                    children: nightLine
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/admin/dashboard/page.tsx",
+                                                    lineNumber: 309,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "text-lg font-semibold",
+                                                    children: [
+                                                        "Night Jodi:",
+                                                        ' ',
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "text-red-800 text-2xl",
+                                                            children: (_round_nightJodi = round === null || round === void 0 ? void 0 : round.nightJodi) !== null && _round_nightJodi !== void 0 ? _round_nightJodi : '—'
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/admin/dashboard/page.tsx",
+                                                            lineNumber: 314,
+                                                            columnNumber: 19
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/app/admin/dashboard/page.tsx",
+                                                    lineNumber: 312,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/admin/dashboard/page.tsx",
+                                            lineNumber: 307,
+                                            columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/admin/dashboard/page.tsx",
-                                    lineNumber: 170,
-                                    columnNumber: 11
+                                    lineNumber: 291,
+                                    columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                lineNumber: 169,
-                                columnNumber: 9
+                                lineNumber: 290,
+                                columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "grid grid-cols-1 md:grid-cols-2 gap-4",
@@ -921,8 +1065,8 @@ function AdminPanel() {
                                                 children: "📋 Round Details"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                lineNumber: 185,
-                                                columnNumber: 13
+                                                lineNumber: 324,
+                                                columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "space-y-3",
@@ -935,22 +1079,22 @@ function AdminPanel() {
                                                                 children: "Round ID:"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                                lineNumber: 190,
-                                                                columnNumber: 17
+                                                                lineNumber: 329,
+                                                                columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                 className: "font-mono text-yellow-300",
                                                                 children: (_round_roundId_slice = round === null || round === void 0 ? void 0 : (_round_roundId = round.roundId) === null || _round_roundId === void 0 ? void 0 : _round_roundId.slice(0, 8)) !== null && _round_roundId_slice !== void 0 ? _round_roundId_slice : '—'
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                                lineNumber: 191,
-                                                                columnNumber: 17
+                                                                lineNumber: 330,
+                                                                columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                        lineNumber: 189,
-                                                        columnNumber: 15
+                                                        lineNumber: 328,
+                                                        columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "flex justify-between items-center",
@@ -960,34 +1104,34 @@ function AdminPanel() {
                                                                 children: "Date:"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                                lineNumber: 194,
-                                                                columnNumber: 17
+                                                                lineNumber: 333,
+                                                                columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                 className: "font-semibold text-green-300",
                                                                 children: (_round_sessionDate = round === null || round === void 0 ? void 0 : round.sessionDate) !== null && _round_sessionDate !== void 0 ? _round_sessionDate : '—'
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                                lineNumber: 195,
-                                                                columnNumber: 17
+                                                                lineNumber: 334,
+                                                                columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                        lineNumber: 193,
-                                                        columnNumber: 15
+                                                        lineNumber: 332,
+                                                        columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                lineNumber: 188,
-                                                columnNumber: 13
+                                                lineNumber: 327,
+                                                columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                        lineNumber: 184,
-                                        columnNumber: 11
+                                        lineNumber: 323,
+                                        columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 shadow-lg",
@@ -997,8 +1141,8 @@ function AdminPanel() {
                                                 children: "⏰ Timing & Status"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                lineNumber: 202,
-                                                columnNumber: 13
+                                                lineNumber: 341,
+                                                columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "space-y-3",
@@ -1011,22 +1155,22 @@ function AdminPanel() {
                                                                 children: "Day Time:"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                                lineNumber: 207,
-                                                                columnNumber: 17
+                                                                lineNumber: 346,
+                                                                columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                 className: "font-semibold text-purple-300",
                                                                 children: (_round_dayTime = round === null || round === void 0 ? void 0 : round.dayTime) !== null && _round_dayTime !== void 0 ? _round_dayTime : '—'
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                                lineNumber: 208,
-                                                                columnNumber: 17
+                                                                lineNumber: 347,
+                                                                columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                        lineNumber: 206,
-                                                        columnNumber: 15
+                                                        lineNumber: 345,
+                                                        columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "flex justify-between items-center",
@@ -1036,22 +1180,22 @@ function AdminPanel() {
                                                                 children: "Night Time:"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                                lineNumber: 211,
-                                                                columnNumber: 17
+                                                                lineNumber: 350,
+                                                                columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                 className: "font-semibold text-purple-300",
                                                                 children: (_round_nightTime = round === null || round === void 0 ? void 0 : round.nightTime) !== null && _round_nightTime !== void 0 ? _round_nightTime : '—'
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                                lineNumber: 212,
-                                                                columnNumber: 17
+                                                                lineNumber: 351,
+                                                                columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                        lineNumber: 210,
-                                                        columnNumber: 15
+                                                        lineNumber: 349,
+                                                        columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "flex justify-between items-center",
@@ -1061,40 +1205,40 @@ function AdminPanel() {
                                                                 children: "Status:"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                                lineNumber: 215,
-                                                                columnNumber: 17
+                                                                lineNumber: 354,
+                                                                columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                 className: "px-3 py-1 rounded-full text-sm font-bold border ".concat(getStatusBadge(round === null || round === void 0 ? void 0 : round.status)),
                                                                 children: (_round_status = round === null || round === void 0 ? void 0 : round.status) !== null && _round_status !== void 0 ? _round_status : '—'
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                                lineNumber: 216,
-                                                                columnNumber: 17
+                                                                lineNumber: 355,
+                                                                columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                        lineNumber: 214,
-                                                        columnNumber: 15
+                                                        lineNumber: 353,
+                                                        columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                lineNumber: 205,
-                                                columnNumber: 13
+                                                lineNumber: 344,
+                                                columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                        lineNumber: 201,
-                                        columnNumber: 11
+                                        lineNumber: 340,
+                                        columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                lineNumber: 182,
-                                columnNumber: 9
+                                lineNumber: 321,
+                                columnNumber: 11
                             }, this),
                             (!round || round.status === 'CLOSED') && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-xl p-6 border-2 border-green-600/40 shadow-lg",
@@ -1104,8 +1248,8 @@ function AdminPanel() {
                                         children: "🚀 Start New Round"
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                        lineNumber: 227,
-                                        columnNumber: 13
+                                        lineNumber: 370,
+                                        columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4",
@@ -1117,8 +1261,8 @@ function AdminPanel() {
                                                         children: "Session Date"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                        lineNumber: 232,
-                                                        columnNumber: 17
+                                                        lineNumber: 375,
+                                                        columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                                         type: "date",
@@ -1127,14 +1271,14 @@ function AdminPanel() {
                                                         className: "w-full p-3 text-white rounded-lg font-semibold focus:ring-2 focus:ring-green-500 outline-none"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                        lineNumber: 233,
-                                                        columnNumber: 17
+                                                        lineNumber: 376,
+                                                        columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                lineNumber: 231,
-                                                columnNumber: 15
+                                                lineNumber: 374,
+                                                columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 children: [
@@ -1143,8 +1287,8 @@ function AdminPanel() {
                                                         children: "Day Time"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                        lineNumber: 241,
-                                                        columnNumber: 17
+                                                        lineNumber: 384,
+                                                        columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                                         type: "time",
@@ -1153,14 +1297,14 @@ function AdminPanel() {
                                                         className: "w-full p-3 text-white rounded-lg font-semibold focus:ring-2 focus:ring-green-500 outline-none"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                        lineNumber: 242,
-                                                        columnNumber: 17
+                                                        lineNumber: 385,
+                                                        columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                lineNumber: 240,
-                                                columnNumber: 15
+                                                lineNumber: 383,
+                                                columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 children: [
@@ -1169,8 +1313,8 @@ function AdminPanel() {
                                                         children: "Night Time"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                        lineNumber: 250,
-                                                        columnNumber: 17
+                                                        lineNumber: 393,
+                                                        columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                                         type: "time",
@@ -1179,20 +1323,20 @@ function AdminPanel() {
                                                         className: "w-full p-3 text-white rounded-lg font-semibold focus:ring-2 focus:ring-green-500 outline-none"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                        lineNumber: 251,
-                                                        columnNumber: 17
+                                                        lineNumber: 394,
+                                                        columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                lineNumber: 249,
-                                                columnNumber: 15
+                                                lineNumber: 392,
+                                                columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                        lineNumber: 230,
-                                        columnNumber: 13
+                                        lineNumber: 373,
+                                        columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                         onClick: startRound,
@@ -1201,164 +1345,268 @@ function AdminPanel() {
                                         children: busy ? '⏳ Starting…' : '✨ Start Round'
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                        lineNumber: 259,
-                                        columnNumber: 13
+                                        lineNumber: 402,
+                                        columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                lineNumber: 226,
-                                columnNumber: 11
+                                lineNumber: 369,
+                                columnNumber: 13
                             }, this),
-                            round && round.status === 'READY' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            round && !dayOpenDone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-xl p-6 border-2 border-blue-600/40 shadow-lg",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
                                         className: "text-2xl font-bold text-blue-400 mb-4 flex items-center gap-2",
-                                        children: "📤 Publish Day"
+                                        children: "📤 Publish Day Opening"
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                        lineNumber: 271,
-                                        columnNumber: 13
+                                        lineNumber: 415,
+                                        columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "mb-4",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
                                                 className: "block text-sm text-gray-300 mb-2",
-                                                children: "Day Panna (000-999)"
+                                                children: "Day Opening Panna (000-999)"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                lineNumber: 275,
-                                                columnNumber: 15
+                                                lineNumber: 419,
+                                                columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                                 type: "text",
-                                                value: dayP,
-                                                onChange: (e)=>setDayP(e.target.value),
+                                                value: dayOpenP,
+                                                onChange: (e)=>setDayOpenP(e.target.value),
                                                 placeholder: "Leave empty for random",
                                                 className: "w-full p-3 text-black rounded-lg font-mono text-lg font-bold focus:ring-2 focus:ring-blue-500 outline-none",
                                                 maxLength: 3
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                lineNumber: 276,
-                                                columnNumber: 15
+                                                lineNumber: 420,
+                                                columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 className: "text-xs text-gray-400 mt-1",
                                                 children: "💡 Leave empty to generate random panna"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                lineNumber: 284,
-                                                columnNumber: 15
+                                                lineNumber: 428,
+                                                columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                        lineNumber: 274,
-                                        columnNumber: 13
+                                        lineNumber: 418,
+                                        columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                        onClick: publishDay,
+                                        onClick: publishDayOpen,
                                         className: "w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed",
                                         disabled: busy,
-                                        children: busy ? '⏳ Publishing…' : '📢 Publish Day'
+                                        children: busy ? '⏳ Publishing…' : '📢 Publish Day Opening'
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                        lineNumber: 286,
-                                        columnNumber: 13
+                                        lineNumber: 430,
+                                        columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                lineNumber: 270,
-                                columnNumber: 11
+                                lineNumber: 414,
+                                columnNumber: 13
                             }, this),
-                            round && round.status === 'DAY_PUBLISHED' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-xl p-6 border-2 border-purple-600/40 shadow-lg",
+                            round && dayOpenDone && !dayCloseDone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-xl p-6 border-2 border-indigo-600/40 shadow-lg",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                                        className: "text-2xl font-bold text-purple-400 mb-4 flex items-center gap-2",
-                                        children: "📥 Publish Night"
+                                        className: "text-2xl font-bold text-indigo-200 mb-4 flex items-center gap-2",
+                                        children: "📥 Publish Day Closing"
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                        lineNumber: 298,
-                                        columnNumber: 13
+                                        lineNumber: 443,
+                                        columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "mb-4",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
                                                 className: "block text-sm text-gray-300 mb-2",
-                                                children: "Night Panna (000-999)"
+                                                children: "Day Closing Panna (000-999)"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                lineNumber: 302,
-                                                columnNumber: 15
+                                                lineNumber: 447,
+                                                columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                                 type: "text",
-                                                value: nightP,
-                                                onChange: (e)=>setNightP(e.target.value),
+                                                value: dayCloseP,
+                                                onChange: (e)=>setDayCloseP(e.target.value),
+                                                placeholder: "Leave empty for random",
+                                                className: "w-full p-3 text-black rounded-lg font-mono text-lg font-bold focus:ring-2 focus:ring-indigo-500 outline-none",
+                                                maxLength: 3
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/admin/dashboard/page.tsx",
+                                                lineNumber: 448,
+                                                columnNumber: 17
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/admin/dashboard/page.tsx",
+                                        lineNumber: 446,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                        onClick: publishDayClose,
+                                        className: "w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-4 px-6 rounded-lg transition-all disabled:opacity-50",
+                                        disabled: busy,
+                                        children: busy ? '⏳ Publishing…' : '🏁 Publish Day Closing'
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/admin/dashboard/page.tsx",
+                                        lineNumber: 457,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/app/admin/dashboard/page.tsx",
+                                lineNumber: 442,
+                                columnNumber: 13
+                            }, this),
+                            round && !nightOpenDone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-xl p-6 border-2 border-purple-600/40 shadow-lg",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                        className: "text-2xl font-bold text-purple-400 mb-4 flex items-center gap-2",
+                                        children: "🌙 Publish Night Opening"
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/admin/dashboard/page.tsx",
+                                        lineNumber: 470,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "mb-4",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                className: "block text-sm text-gray-300 mb-2",
+                                                children: "Night Opening Panna (000-999)"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/admin/dashboard/page.tsx",
+                                                lineNumber: 474,
+                                                columnNumber: 17
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                type: "text",
+                                                value: nightOpenP,
+                                                onChange: (e)=>setNightOpenP(e.target.value),
                                                 placeholder: "Leave empty for random",
                                                 className: "w-full p-3 text-black rounded-lg font-mono text-lg font-bold focus:ring-2 focus:ring-purple-500 outline-none",
                                                 maxLength: 3
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                lineNumber: 303,
-                                                columnNumber: 15
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "text-xs text-gray-400 mt-1",
-                                                children: "💡 Leave empty to generate random panna"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/admin/dashboard/page.tsx",
-                                                lineNumber: 311,
-                                                columnNumber: 15
+                                                lineNumber: 475,
+                                                columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                        lineNumber: 301,
-                                        columnNumber: 13
+                                        lineNumber: 473,
+                                        columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                        onClick: publishNight,
-                                        className: "w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed",
+                                        onClick: publishNightOpen,
+                                        className: "w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-4 px-6 rounded-lg transition-all disabled:opacity-50",
                                         disabled: busy,
-                                        children: busy ? '⏳ Publishing…' : '🏁 Publish Night'
+                                        children: busy ? '⏳ Publishing…' : '📢 Publish Night Opening'
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                                        lineNumber: 313,
-                                        columnNumber: 13
+                                        lineNumber: 484,
+                                        columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                                lineNumber: 297,
-                                columnNumber: 11
+                                lineNumber: 469,
+                                columnNumber: 13
+                            }, this),
+                            round && nightOpenDone && !nightCloseDone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-xl p-6 border-2 border-pink-600/40 shadow-lg",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                        className: "text-2xl font-bold text-pink-200 mb-4 flex items-center gap-2",
+                                        children: "🌙📥 Publish Night Closing"
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/admin/dashboard/page.tsx",
+                                        lineNumber: 497,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "mb-4",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                className: "block text-sm text-gray-300 mb-2",
+                                                children: "Night Closing Panna (000-999)"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/admin/dashboard/page.tsx",
+                                                lineNumber: 501,
+                                                columnNumber: 17
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                type: "text",
+                                                value: nightCloseP,
+                                                onChange: (e)=>setNightCloseP(e.target.value),
+                                                placeholder: "Leave empty for random",
+                                                className: "w-full p-3 text-black rounded-lg font-mono text-lg font-bold focus:ring-2 focus:ring-pink-500 outline-none",
+                                                maxLength: 3
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/admin/dashboard/page.tsx",
+                                                lineNumber: 502,
+                                                columnNumber: 17
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/admin/dashboard/page.tsx",
+                                        lineNumber: 500,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                        onClick: publishNightClose,
+                                        className: "w-full bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 text-white font-bold py-4 px-6 rounded-lg transition-all disabled:opacity-50",
+                                        disabled: busy,
+                                        children: busy ? '⏳ Publishing…' : '🏁 Publish Night Closing'
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/admin/dashboard/page.tsx",
+                                        lineNumber: 511,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/app/admin/dashboard/page.tsx",
+                                lineNumber: 496,
+                                columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/admin/dashboard/page.tsx",
-                        lineNumber: 155,
-                        columnNumber: 7
+                        lineNumber: 276,
+                        columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                lineNumber: 110,
-                columnNumber: 5
+                lineNumber: 232,
+                columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$AdminHistoryEditor$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                 fileName: "[project]/app/admin/dashboard/page.tsx",
-                lineNumber: 325,
-                columnNumber: 5
+                lineNumber: 522,
+                columnNumber: 7
             }, this)
         ]
     }, void 0, true);
 }
-_s(AdminPanel, "6uDQ5FB3rU+CLFSNoYlqjFBoVGM=");
+_s(AdminPanel, "Vz5RoKNyxnGUh7IvnFUd+KDstrM=");
 _c = AdminPanel;
 var _c;
 __turbopack_context__.k.register(_c, "AdminPanel");

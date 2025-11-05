@@ -6,6 +6,7 @@ import Link from 'next/link';
 import ResultRibbon from '@/components/ResultRibbon';
 import Hamburger from '@/components/Hamburger';
 import MonthlyResultsTable from '@/components/MonthlyResultsTable';
+import NightResultsTable from '@/components/NightResultTable';
 
 type Latest = {
   jodi: string | null;
@@ -122,7 +123,7 @@ export default function NightPage() {
         <div className="my-6" />
 
         {/* Monthly table (shared) */}
-        <MonthlyResultsTable />
+        <NightResultsTable />
 
         <div id="bottom" className="h-12" />
       </div>

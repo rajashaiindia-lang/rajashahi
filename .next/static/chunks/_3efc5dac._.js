@@ -15,7 +15,7 @@ var _s = __turbopack_context__.k.signature();
 'use client';
 ;
 function ResultRibbon(param) {
-    let { side, sessionDate, dayPanna, dayDigit, nightPanna, nightDigit, jodi, onRefresh } = param;
+    let { side, sessionDate, status, dayPanna, dayDigit, nightPanna, nightDigit, dayClosePanna, dayCloseDigit, nightClosePanna, nightCloseDigit, jodi, onRefresh } = param;
     _s();
     const [spinning, setSpinning] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const refresh = async ()=>{
@@ -27,35 +27,36 @@ function ResultRibbon(param) {
             setSpinning(false);
         }
     };
-    // What to show on the big line
+    // Compose open/close display depending on side
     const mainLine = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "ResultRibbon.useMemo[mainLine]": ()=>{
             if (side === 'day') {
-                const has = dayDigit != null && dayPanna != null;
-                return has ? "(".concat(dayPanna, ") ").concat(dayDigit) : '(—) —';
+                const openHas = dayDigit != null && dayPanna != null;
+                const closeHas = dayCloseDigit != null && dayClosePanna != null;
+                const open = openHas ? "(".concat(dayPanna, ") ").concat(dayDigit) : '(—) —';
+                const close = closeHas ? "(".concat(dayClosePanna, ") ").concat(dayCloseDigit) : '(—)';
+                return "".concat(open, " | ").concat(close);
             } else {
-                const has = nightDigit != null && nightPanna != null;
-                return has ? "(".concat(nightPanna, ") ").concat(nightDigit) : '(—) —';
+                const openHas = nightDigit != null && nightPanna != null;
+                const closeHas = nightCloseDigit != null && nightClosePanna != null;
+                const open = openHas ? "(".concat(nightPanna, ") ").concat(nightDigit) : '(—) —';
+                const close = closeHas ? "(".concat(nightClosePanna, ") ").concat(nightCloseDigit) : '(—)';
+                return "".concat(open, " | ").concat(close);
             }
         }
     }["ResultRibbon.useMemo[mainLine]"], [
         side,
         dayPanna,
         dayDigit,
+        dayClosePanna,
+        dayCloseDigit,
         nightPanna,
-        nightDigit
-    ]);
-    // Jodi appears only when both digits exist
-    const jodiText = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
-        "ResultRibbon.useMemo[jodiText]": ()=>{
-            if (dayDigit == null || nightDigit == null) return null;
-            return jodi !== null && jodi !== void 0 ? jodi : "".concat(dayDigit).concat(nightDigit);
-        }
-    }["ResultRibbon.useMemo[jodiText]"], [
-        dayDigit,
         nightDigit,
-        jodi
+        nightClosePanna,
+        nightCloseDigit
     ]);
+    // Always show jodi row, with fallback '-'
+    const jodiDisplay = jodi && jodi.trim() !== '' ? jodi : '-';
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "rounded border-2 border-red-700 bg-yellow-300 text-center py-5 px-3 shadow-[inset_0_0_0_2px_rgba(255,0,0,0.3)]",
         children: [
@@ -66,12 +67,12 @@ function ResultRibbon(param) {
                     children: side.toUpperCase()
                 }, void 0, false, {
                     fileName: "[project]/components/ResultRibbon.tsx",
-                    lineNumber: 58,
+                    lineNumber: 87,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/ResultRibbon.tsx",
-                lineNumber: 57,
+                lineNumber: 86,
                 columnNumber: 7
             }, this),
             sessionDate && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -79,7 +80,7 @@ function ResultRibbon(param) {
                 children: sessionDate
             }, void 0, false, {
                 fileName: "[project]/components/ResultRibbon.tsx",
-                lineNumber: 69,
+                lineNumber: 98,
                 columnNumber: 23
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -87,26 +88,26 @@ function ResultRibbon(param) {
                 children: mainLine
             }, void 0, false, {
                 fileName: "[project]/components/ResultRibbon.tsx",
-                lineNumber: 71,
+                lineNumber: 101,
                 columnNumber: 7
             }, this),
-            jodiText && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                 className: "text-sm text-gray-700 mt-1",
                 children: [
                     "Jodi: ",
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                         className: "font-semibold",
-                        children: jodiText
+                        children: jodiDisplay
                     }, void 0, false, {
                         fileName: "[project]/components/ResultRibbon.tsx",
-                        lineNumber: 76,
-                        columnNumber: 17
+                        lineNumber: 105,
+                        columnNumber: 15
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/ResultRibbon.tsx",
-                lineNumber: 75,
-                columnNumber: 9
+                lineNumber: 104,
+                columnNumber: 7
             }, this),
             onRefresh && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 onClick: refresh,
@@ -114,17 +115,17 @@ function ResultRibbon(param) {
                 children: spinning ? 'Refreshing…' : 'Refresh Result'
             }, void 0, false, {
                 fileName: "[project]/components/ResultRibbon.tsx",
-                lineNumber: 81,
+                lineNumber: 109,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/ResultRibbon.tsx",
-        lineNumber: 55,
+        lineNumber: 84,
         columnNumber: 5
     }, this);
 }
-_s(ResultRibbon, "ndFGTHotf03vwffor1GHBGcroGQ=");
+_s(ResultRibbon, "DBhoQH5e8hv/mMpVfaLLTpVJLwo=");
 _c = ResultRibbon;
 var _c;
 __turbopack_context__.k.register(_c, "ResultRibbon");
@@ -856,6 +857,7 @@ function Page() {
             top: 0,
             behavior: 'smooth'
         });
+    var _latest_jodi;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
         className: "min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white",
         children: [
@@ -1012,22 +1014,20 @@ function Page() {
                                 sessionDate: latest === null || latest === void 0 ? void 0 : latest.sessionDate,
                                 dayPanna: latest === null || latest === void 0 ? void 0 : latest.dayPanna,
                                 dayDigit: latest === null || latest === void 0 ? void 0 : latest.dayDigit,
-                                nightPanna: latest === null || latest === void 0 ? void 0 : latest.nightPanna,
-                                nightDigit: latest === null || latest === void 0 ? void 0 : latest.nightDigit,
-                                // formatted={latest?.formatted}   // optional fallback
-                                // jodi={latest?.jodi}             // optional; ribbon can derive it
+                                // do NOT pass night fields for day view
+                                jodi: (_latest_jodi = latest === null || latest === void 0 ? void 0 : latest.jodi) !== null && _latest_jodi !== void 0 ? _latest_jodi : null,
                                 onRefresh: load
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
                                 lineNumber: 105,
-                                columnNumber: 2
+                                columnNumber: 1
                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "text-center py-8 text-black font-semibold text-lg",
                                 children: "Loading…"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 120,
-                                columnNumber: 13
+                                lineNumber: 117,
+                                columnNumber: 3
                             }, this)
                         ]
                     }, void 0, true, {
@@ -1039,12 +1039,12 @@ function Page() {
                         className: "my-6"
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 124,
+                        lineNumber: 123,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$MonthlyResultsTable$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 128,
+                        lineNumber: 125,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1052,7 +1052,7 @@ function Page() {
                         className: "h-12"
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 130,
+                        lineNumber: 127,
                         columnNumber: 9
                     }, this)
                 ]
@@ -1078,17 +1078,17 @@ function Page() {
                         d: "M5 10l7-7m0 0l7 7m-7-7v18"
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 151,
+                        lineNumber: 148,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 143,
+                    lineNumber: 140,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 134,
+                lineNumber: 131,
                 columnNumber: 7
             }, this)
         ]
