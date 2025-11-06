@@ -10,7 +10,6 @@ type Item = {
   closeDigit?: number | null;
   jodi?: string | null;
   status: 'READY' | 'OPEN_PUBLISHED' | 'CLOSED';
-
   // optional: if history API sends times for night
   openTime?: string | null;   // nightOpenTime
   closeTime?: string | null;  // nightCloseTime
@@ -65,7 +64,8 @@ function groupIntoWeeks(items: LocalItem[]) {
 function PannaColumn({ panna }: { panna?: string | null }) {
   const p = (panna ?? '   ').padEnd(3, ' ');
   return (
-    <div className="flex flex-col items-center text-[8px] md:text-[9px] leading-3 text-purple-800/90 tracking-tight">
+    // hide on mobile, show on md+
+    <div className="hidden md:flex flex-col items-center text-[8px] md:text-[9px] leading-3 text-purple-800/90 tracking-tight">
       <span>{p[0]}</span>
       <span>{p[1]}</span>
       <span>{p[2]}</span>
@@ -78,13 +78,14 @@ function PlaceholderCell() {
   return (
     <div className="relative bg-[#fffdf6] rounded-[6px] border border-black/40 shadow-[inset_0_1px_0_rgba(0,0,0,0.12)] px-1 pt-1 pb-1.5 min-h-[56px] flex items-center justify-center">
       <div className="flex items-center justify-center gap-1">
-        <div className="flex flex-col items-center text-[8px] leading-3 text-black">
+        {/* vertical stars only on desktop */}
+        <div className="hidden md:flex flex-col items-center text-[8px] leading-3 text-black">
           {col.map((c, i) => (
             <span key={i}>{c}</span>
           ))}
         </div>
         <div className="min-w-[30px] text-center font-extrabold text-[16px] text-black">*</div>
-        <div className="flex flex-col items-center text-[8px] leading-3 text-black">
+        <div className="hidden md:flex flex-col items-center text-[8px] leading-3 text-black">
           {col.map((c, i) => (
             <span key={i}>{c}</span>
           ))}
@@ -103,7 +104,7 @@ function TodayPendingCell() {
     </div>
   );
 }
-// client-side helper for optional schedule (you already have this)
+
 function isNowBeforeIST(dateStr: string, hhmm?: string | null) {
   if (!hhmm) return false;
   const target = new Date(`${dateStr}T${hhmm}:00+05:30`);
@@ -131,8 +132,9 @@ function NightCell({ it, today }: { it: LocalItem; today: string }) {
   const center = closed ? it.jodi ?? `${it.openDigit}${it.closeDigit}` : '—';
 
   return (
-    <div className="relative bg-[#fffdf6] rounded-[6px] border border-black/40 px-1 pt-1 pb-1.5 min-h-[56px] flex items-center justify-center">
-      <div className="flex items-center justify-center gap-1">
+    <div className="relative bg-[#fffdf6] rounded-[6px] border border-black/40 px-1 pt-1 pb-1.5 min-h-[64px] flex items-center justify-center">
+      {/* desktop layout */}
+      <div className="hidden md:flex items-center justify-center gap-1">
         <PannaColumn panna={it.openPanna} />
         <div
           className={`min-w-[30px] text-center font-extrabold text-[14px] ${
@@ -142,6 +144,33 @@ function NightCell({ it, today }: { it: LocalItem; today: string }) {
           {center}
         </div>
         <PannaColumn panna={showClose ? it.closePanna : null} />
+      </div>
+
+      {/* mobile layout */}
+      <div className="flex md:hidden flex-col items-center gap-0.5 w-full text-center">
+        <div
+          className={`text-[15px] font-extrabold ${closed ? 'text-purple-700' : 'text-gray-500'}`}
+        >
+          {center}
+        </div>
+        <div className="text-[9px] text-gray-700 leading-tight">
+          {haveOpen ? (
+            <span>
+              O: ({it.openPanna}) {it.openDigit}
+            </span>
+          ) : (
+            <span className="text-gray-400">O: —</span>
+          )}
+        </div>
+        <div className="text-[9px] text-gray-700 leading-tight">
+          {showClose ? (
+            <span>
+              C: ({it.closePanna}) {it.closeDigit}
+            </span>
+          ) : (
+            <span className="text-gray-400">C: —</span>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -175,34 +204,36 @@ export default function NightResultsTable() {
   return (
     <section className="max-w-5xl mx-auto px-2 md:px-3 pb-8">
       <div className="rounded-md border-[6px] border-purple-700 bg-[#fffdf6] shadow-[0_2px_10px_rgba(0,0,0,0.25)] overflow-hidden">
-        {/* Header */}
-        <div className="grid grid-cols-8 bg-purple-200 border-b border-black/40 text-center font-semibold text-[10px] md:text-[12px] uppercase text-black tracking-wide">
-          <div className="py-1.5 border-r border-black/30">Date</div>
-          <div className="py-1.5 border-r border-black/30">Mon</div>
-          <div className="py-1.5 border-r border-black/30">Tue</div>
-          <div className="py-1.5 border-r border-black/30">Wed</div>
-          <div className="py-1.5 border-r border-black/30">Thu</div>
-          <div className="py-1.5 border-r border-black/30">Fri</div>
-          <div className="py-1.5 border-r border-black/30">Sat</div>
-          <div className="py-1.5">Sun</div>
-        </div>
+        <div className="overflow-x-auto">
+          {/* Header */}
+          <div className="min-w-[540px] grid grid-cols-8 bg-purple-200 border-b border-black/40 text-center font-semibold text-[10px] md:text-[12px] uppercase text-black tracking-wide">
+            <div className="py-1.5 border-r border-black/30">Date</div>
+            <div className="py-1.5 border-r border-black/30">Mon</div>
+            <div className="py-1.5 border-r border-black/30">Tue</div>
+            <div className="py-1.5 border-r border-black/30">Wed</div>
+            <div className="py-1.5 border-r border-black/30">Thu</div>
+            <div className="py-1.5 border-r border-black/30">Fri</div>
+            <div className="py-1.5 border-r border-black/30">Sat</div>
+            <div className="py-1.5">Sun</div>
+          </div>
 
-        {rows.map((row, weekIdx) => {
-          const start = row[0]?.sessionDate;
-          const end = row[row.length - 1]?.sessionDate;
-          return (
-            <div key={`week-${weekIdx}`} className="px-2 md:px-3 py-2">
-              <div className="grid grid-cols-8 gap-1">
-                <div>
-                  <DateRangeCell start={start} end={end} />
+          {rows.map((row, weekIdx) => {
+            const start = row[0]?.sessionDate;
+            const end = row[row.length - 1]?.sessionDate;
+            return (
+              <div key={`week-${weekIdx}`} className="px-2 md:px-3 py-2 min-w-[540px]">
+                <div className="grid grid-cols-8 gap-1">
+                  <div>
+                    <DateRangeCell start={start} end={end} />
+                  </div>
+                  {row.map((it, i) => (
+                    <NightCell key={`${it.sessionDate}-${i}`} it={it} today={today} />
+                  ))}
                 </div>
-                {row.map((it, i) => (
-                  <NightCell key={`${it.sessionDate}-${i}`} it={it} today={today} />
-                ))}
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </section>
   );
