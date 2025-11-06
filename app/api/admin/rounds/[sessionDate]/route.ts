@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/mongodb';
 import Round from '@/models/Round';
+import Bet from '@/models/Bet'; 
 import { digitFromPanna, deriveJodi } from '@/utils/helpers';
 
 const pad3 = (v: any) =>
@@ -215,4 +216,31 @@ export async function PATCH(req: Request) {
   await round.save();
 
   return NextResponse.json({ ok: true, round });
+}
+// ------------------ NEW: DELETE ------------------
+export async function DELETE(req: Request) {
+  const sessionDate = extractSessionDate(req);
+  if (!sessionDate) {
+    return NextResponse.json(
+      { ok: false, error: 'Bad sessionDate in URL' },
+      { status: 400 }
+    );
+  }
+
+  await dbConnect();
+
+  // find the round first (so we can also delete bets that point to it)
+  const round = await Round.findOne({ sessionDate });
+  if (!round) {
+    // UI will show “Deleted successfully!” if we just return ok
+    return NextResponse.json({ ok: true, note: 'Round not found (already deleted?)' });
+  }
+
+  // delete bets for that round (optional but nice to keep DB clean)
+  await Bet.deleteMany({ round: round._id });
+
+  // delete the round itself
+  await Round.deleteOne({ _id: round._id });
+
+  return NextResponse.json({ ok: true });
 }

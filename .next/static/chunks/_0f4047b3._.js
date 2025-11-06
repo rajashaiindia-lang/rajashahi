@@ -328,452 +328,427 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
     __turbopack_context__.k.registerExports(module, globalThis.$RefreshHelpers$);
 }
 }}),
-"[project]/components/DayResultTable.tsx [app-client] (ecmascript)": ((__turbopack_context__) => {
+"[project]/lib/mongodb.ts [app-client] (ecmascript)": ((__turbopack_context__) => {
 "use strict";
 
 var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
 {
 __turbopack_context__.s({
-    "default": ()=>DayResultsTable
+    "dbConnect": ()=>dbConnect
 });
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/swr/dist/index/index.mjs [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$mongoose$2f$dist$2f$browser$2e$umd$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/mongoose/dist/browser.umd.js [app-client] (ecmascript)");
 ;
-var _s = __turbopack_context__.k.signature();
-'use client';
-;
-const fetcher = (u)=>fetch(u).then((r)=>r.json());
-const ddmmyy = (d)=>"".concat(d.slice(8, 10), "/").concat(d.slice(5, 7), "/").concat(d.slice(2, 4));
-const addDays = (dateStr, n)=>{
-    const d = new Date(dateStr + 'T00:00:00Z');
-    d.setUTCDate(d.getUTCDate() + n);
-    return d.toISOString().slice(0, 10);
+const MONGODB_URI = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].env.MONGODB_URI;
+if (!MONGODB_URI) {
+    throw new Error("MONGODB_URI is not set");
+}
+let cached = global._mongoose;
+if (!cached) cached = global._mongoose = {
+    conn: null,
+    promise: null
 };
-const maxDate = (a, b)=>a > b ? a : b;
-function fillContinuous(items) {
-    if (!items.length) return [];
-    const sorted = [
-        ...items
-    ].sort((a, b)=>a.sessionDate.localeCompare(b.sessionDate));
-    const first = sorted[0].sessionDate;
-    const last = sorted[sorted.length - 1].sessionDate;
-    const today = new Date().toISOString().slice(0, 10);
-    const end = maxDate(last, today);
-    const byDate = new Map(sorted.map((i)=>[
-            i.sessionDate,
-            i
-        ]));
-    const out = [];
-    for(let d = first; d <= end; d = addDays(d, 1)){
-        const found = byDate.get(d);
-        if (found) {
-            out.push(found);
-        } else {
-            out.push({
-                sessionDate: d,
-                status: 'READY',
-                openPanna: null,
-                openDigit: null,
-                closePanna: null,
-                closeDigit: null,
-                jodi: null,
-                _missing: true
+async function dbConnect() {
+    if (cached.conn) return cached.conn;
+    if (!cached.promise) {
+        cached.promise = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$mongoose$2f$dist$2f$browser$2e$umd$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].connect(MONGODB_URI).then((m)=>m);
+    }
+    cached.conn = await cached.promise;
+    return cached.conn;
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(module, globalThis.$RefreshHelpers$);
+}
+}}),
+"[project]/models/Round.ts [app-client] (ecmascript)": ((__turbopack_context__) => {
+"use strict";
+
+var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
+{
+// models/Round.ts
+__turbopack_context__.s({
+    "default": ()=>__TURBOPACK__default__export__
+});
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$mongoose$2f$dist$2f$browser$2e$umd$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/mongoose/dist/browser.umd.js [app-client] (ecmascript)");
+;
+const timeHHmm = /^([01]\d|2[0-3]):[0-5]\d$/;
+const panna3 = /^\d{3}$/;
+const jodi2 = /^\d{2}$/;
+const RoundSchema = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$mongoose$2f$dist$2f$browser$2e$umd$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Schema"]({
+    roundId: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    sessionDate: {
+        type: String,
+        required: true,
+        match: /^\d{4}-\d{2}-\d{2}$/
+    },
+    // old
+    dayTime: {
+        type: String,
+        required: true,
+        match: timeHHmm
+    },
+    nightTime: {
+        type: String,
+        required: true,
+        match: timeHHmm
+    },
+    // new optional times
+    dayOpenTime: {
+        type: String,
+        match: timeHHmm,
+        default: undefined
+    },
+    dayCloseTime: {
+        type: String,
+        match: timeHHmm,
+        default: undefined
+    },
+    nightOpenTime: {
+        type: String,
+        match: timeHHmm,
+        default: undefined
+    },
+    nightCloseTime: {
+        type: String,
+        match: timeHHmm,
+        default: undefined
+    },
+    // DAY line
+    dayOpenPanna: {
+        type: String,
+        match: panna3,
+        default: undefined
+    },
+    dayOpenDigit: {
+        type: Number,
+        min: 0,
+        max: 9,
+        default: undefined
+    },
+    dayClosePanna: {
+        type: String,
+        match: panna3,
+        default: undefined
+    },
+    dayCloseDigit: {
+        type: Number,
+        min: 0,
+        max: 9,
+        default: undefined
+    },
+    dayJodi: {
+        type: String,
+        match: jodi2,
+        default: undefined
+    },
+    dayLineStatus: {
+        type: String,
+        enum: [
+            'READY',
+            'OPEN_PUBLISHED',
+            'CLOSED'
+        ],
+        default: 'READY'
+    },
+    // NIGHT line
+    nightOpenPanna: {
+        type: String,
+        match: panna3,
+        default: undefined
+    },
+    nightOpenDigit: {
+        type: Number,
+        min: 0,
+        max: 9,
+        default: undefined
+    },
+    nightClosePanna: {
+        type: String,
+        match: panna3,
+        default: undefined
+    },
+    nightCloseDigit: {
+        type: Number,
+        min: 0,
+        max: 9,
+        default: undefined
+    },
+    nightJodi: {
+        type: String,
+        match: jodi2,
+        default: undefined
+    },
+    nightLineStatus: {
+        type: String,
+        enum: [
+            'READY',
+            'OPEN_PUBLISHED',
+            'CLOSED'
+        ],
+        default: 'READY'
+    },
+    // legacy
+    dayPanna: {
+        type: String,
+        match: panna3,
+        default: undefined
+    },
+    dayDigit: {
+        type: Number,
+        min: 0,
+        max: 9,
+        default: undefined
+    },
+    nightPanna: {
+        type: String,
+        match: panna3,
+        default: undefined
+    },
+    nightDigit: {
+        type: Number,
+        min: 0,
+        max: 9,
+        default: undefined
+    },
+    jodi: {
+        type: String,
+        match: jodi2,
+        default: undefined
+    },
+    status: {
+        type: String,
+        enum: [
+            'READY',
+            'OPENING_PUBLISHED',
+            'DAY_PUBLISHED',
+            'CLOSED'
+        ],
+        default: 'READY',
+        required: true
+    }
+}, {
+    timestamps: true
+});
+RoundSchema.index({
+    sessionDate: 1
+}, {
+    unique: true
+});
+// keep your legacy pre-validate but extend it
+RoundSchema.pre('validate', function(next) {
+    // legacy names to new names
+    // @ts-ignore
+    const openingTime = this.openingTime;
+    // @ts-ignore
+    const closingTime = this.closingTime;
+    // if new times missing, fall back to old ones
+    if (!this.dayOpenTime) this.dayOpenTime = this.dayTime || openingTime;
+    if (!this.dayCloseTime) this.dayCloseTime = this.dayTime || closingTime;
+    if (!this.nightOpenTime) this.nightOpenTime = this.nightTime || openingTime;
+    if (!this.nightCloseTime) this.nightCloseTime = this.nightTime || closingTime;
+    // legacy result fields
+    // @ts-ignore
+    const openingPanna = this.openingPanna;
+    // @ts-ignore
+    const openingDigit = this.openingDigit;
+    // @ts-ignore
+    const closingPanna = this.closingPanna;
+    // @ts-ignore
+    const closingDigit = this.closingDigit;
+    // map old day → dayOpen
+    if (!this.dayOpenPanna && (this.dayPanna || openingPanna)) {
+        this.dayOpenPanna = this.dayPanna || openingPanna;
+    }
+    if (this.dayOpenDigit == null && (this.dayDigit != null || openingDigit != null)) {
+        var _this_dayDigit;
+        this.dayOpenDigit = (_this_dayDigit = this.dayDigit) !== null && _this_dayDigit !== void 0 ? _this_dayDigit : openingDigit;
+    }
+    // map old night → nightOpen
+    if (!this.nightOpenPanna && (this.nightPanna || closingPanna)) {
+        this.nightOpenPanna = this.nightPanna || closingPanna;
+    }
+    if (this.nightOpenDigit == null && (this.nightDigit != null || closingDigit != null)) {
+        var _this_nightDigit;
+        this.nightOpenDigit = (_this_nightDigit = this.nightDigit) !== null && _this_nightDigit !== void 0 ? _this_nightDigit : closingDigit;
+    }
+    next();
+});
+const __TURBOPACK__default__export__ = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$mongoose$2f$dist$2f$browser$2e$umd$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["models"].Round || (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$mongoose$2f$dist$2f$browser$2e$umd$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["model"])('Round', RoundSchema);
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(module, globalThis.$RefreshHelpers$);
+}
+}}),
+"[project]/components/DayResultTable.tsx [app-client] (ecmascript)": ((__turbopack_context__) => {
+"use strict";
+
+var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
+{
+// app/api/result/history/route.ts
+__turbopack_context__.s({
+    "GET": ()=>GET
+});
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$mongodb$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/mongodb.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/models/Round.ts [app-client] (ecmascript)");
+;
+;
+;
+// helper to get month range
+function monthBounds(yyyyMM) {
+    const [Y, M] = yyyyMM.split('-').map(Number);
+    const start = new Date(Date.UTC(Y, M - 1, 1, 0, 0, 0));
+    const next = new Date(Date.UTC(Y, M, 1, 0, 0, 0));
+    const lo = start.toISOString().slice(0, 10);
+    const hi = next.toISOString().slice(0, 10);
+    return {
+        lo,
+        hi
+    };
+}
+function addDaysUTC(d, n) {
+    const x = new Date(d);
+    x.setUTCDate(x.getUTCDate() + n);
+    return x;
+}
+async function GET(req) {
+    await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$mongodb$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["dbConnect"])();
+    const { searchParams } = new URL(req.url);
+    const month = searchParams.get('month'); // 'YYYY-MM'
+    const limitRaw = searchParams.get('limit');
+    const weeksRaw = searchParams.get('weeks'); // '24'
+    const endParam = searchParams.get('end'); // 'YYYY-MM-DD'
+    const side = searchParams.get('side'); // 'day' | 'night' | null
+    const limit = Number(limitRaw !== null && limitRaw !== void 0 ? limitRaw : 0);
+    const filter = {};
+    let lo;
+    let hi;
+    if (month) {
+        // month mode
+        const { lo: _lo, hi: _hi } = monthBounds(month);
+        lo = _lo;
+        hi = _hi;
+    } else if (weeksRaw) {
+        // weeks mode
+        const weeks = Math.max(1, Math.min(52, Number(weeksRaw) || 24));
+        const latest = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].findOne({}).sort({
+            sessionDate: -1
+        }).select('sessionDate').lean();
+        const endDateStr = endParam || (latest === null || latest === void 0 ? void 0 : latest.sessionDate);
+        if (!endDateStr) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                items: []
             });
         }
+        const end = new Date("".concat(endDateStr, "T00:00:00Z"));
+        const start = addDaysUTC(end, -(weeks * 7) + 1);
+        lo = start.toISOString().slice(0, 10);
+        hi = addDaysUTC(end, 1).toISOString().slice(0, 10);
     }
-    return out;
-}
-function groupIntoWeeks(items) {
-    const rows = [];
-    for(let i = 0; i < items.length; i += 7)rows.push(items.slice(i, i + 7));
-    // allow up to 24 rows
-    return rows.length > 24 ? rows.slice(-24) : rows;
-}
-function PannaColumn(param) {
-    let { panna } = param;
-    const p = (panna !== null && panna !== void 0 ? panna : '   ').padEnd(3, ' ');
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "flex flex-col items-center text-[8px] md:text-[9px] leading-3 text-yellow-800/90 tracking-tight",
-        children: [
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                children: p[0]
-            }, void 0, false, {
-                fileName: "[project]/components/DayResultTable.tsx",
-                lineNumber: 71,
-                columnNumber: 7
-            }, this),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                children: p[1]
-            }, void 0, false, {
-                fileName: "[project]/components/DayResultTable.tsx",
-                lineNumber: 72,
-                columnNumber: 7
-            }, this),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                children: p[2]
-            }, void 0, false, {
-                fileName: "[project]/components/DayResultTable.tsx",
-                lineNumber: 73,
-                columnNumber: 7
-            }, this)
-        ]
-    }, void 0, true, {
-        fileName: "[project]/components/DayResultTable.tsx",
-        lineNumber: 70,
-        columnNumber: 5
-    }, this);
-}
-_c = PannaColumn;
-function PlaceholderCell() {
-    const col = [
-        '*',
-        '*',
-        '*'
-    ];
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "relative bg-[#fffdf6] rounded-[6px] border border-black/40 shadow-[inset_0_1px_0_rgba(0,0,0,0.12)] px-1 pt-1 pb-1.5 min-h-[56px] flex items-center justify-center",
-        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "flex items-center justify-center gap-1",
-            children: [
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "flex flex-col items-center text-[8px] leading-3 text-black",
-                    children: col.map((c, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                            children: c
-                        }, i, false, {
-                            fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 85,
-                            columnNumber: 13
-                        }, this))
-                }, void 0, false, {
-                    fileName: "[project]/components/DayResultTable.tsx",
-                    lineNumber: 83,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "min-w-[30px] text-center font-extrabold text-[16px] text-black",
-                    children: "*"
-                }, void 0, false, {
-                    fileName: "[project]/components/DayResultTable.tsx",
-                    lineNumber: 88,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "flex flex-col items-center text-[8px] leading-3 text-black",
-                    children: col.map((c, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                            children: c
-                        }, i, false, {
-                            fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 91,
-                            columnNumber: 13
-                        }, this))
-                }, void 0, false, {
-                    fileName: "[project]/components/DayResultTable.tsx",
-                    lineNumber: 89,
-                    columnNumber: 9
-                }, this)
-            ]
-        }, void 0, true, {
-            fileName: "[project]/components/DayResultTable.tsx",
-            lineNumber: 82,
-            columnNumber: 7
-        }, this)
-    }, void 0, false, {
-        fileName: "[project]/components/DayResultTable.tsx",
-        lineNumber: 81,
-        columnNumber: 5
-    }, this);
-}
-_c1 = PlaceholderCell;
-function TodayPendingCell() {
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "relative bg-[#fffdf6] rounded-[6px] border border-dashed border-black/40 px-1 pt-1 pb-1.5 min-h-[56px] flex items-center justify-center",
-        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "min-w-[30px] text-center font-extrabold text-[14px] text-gray-400",
-            children: "—"
-        }, void 0, false, {
-            fileName: "[project]/components/DayResultTable.tsx",
-            lineNumber: 102,
-            columnNumber: 7
-        }, this)
-    }, void 0, false, {
-        fileName: "[project]/components/DayResultTable.tsx",
-        lineNumber: 101,
-        columnNumber: 5
-    }, this);
-}
-_c2 = TodayPendingCell;
-// client-side helper for optional schedule
-function isNowBeforeIST(dateStr, hhmm) {
-    if (!hhmm) return false;
-    const target = new Date("".concat(dateStr, "T").concat(hhmm, ":00+05:30"));
-    return new Date() < target;
-}
-function DayCell(param) {
-    let { it, today } = param;
-    const haveOpen = it.openDigit != null && it.openPanna != null;
-    const haveClose = it.closeDigit != null && it.closePanna != null;
-    const isToday = it.sessionDate === today;
-    const openScheduled = isToday && it.openTime ? isNowBeforeIST(it.sessionDate, it.openTime) : false;
-    const closeScheduled = isToday && it.closeTime ? isNowBeforeIST(it.sessionDate, it.closeTime) : false;
-    // if we have nothing yet but at least one is scheduled → show pending
-    if (!haveOpen && !haveClose && (openScheduled || closeScheduled)) {
-        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(TodayPendingCell, {}, void 0, false, {
-            fileName: "[project]/components/DayResultTable.tsx",
-            lineNumber: 126,
-            columnNumber: 12
-        }, this);
+    if (lo && hi) {
+        filter.sessionDate = {
+            $gte: lo,
+            $lt: hi
+        };
     }
-    // completely missing (older empty day) → stars
-    if (it._missing || !haveOpen && !haveClose) {
-        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(PlaceholderCell, {}, void 0, false, {
-            fileName: "[project]/components/DayResultTable.tsx",
-            lineNumber: 131,
-            columnNumber: 12
-        }, this);
+    // pull all needed fields, including the new ones
+    const rounds = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].find(filter).sort({
+        sessionDate: 1
+    }).select('sessionDate ' + 'dayOpenPanna dayOpenDigit dayClosePanna dayCloseDigit dayJodi dayLineStatus ' + 'nightOpenPanna nightOpenDigit nightClosePanna nightCloseDigit nightJodi nightLineStatus ' + 'dayOpenTime dayCloseTime nightOpenTime nightCloseTime ' + // <- add times
+    // legacy times
+    'dayTime nightTime ' + // legacy pannas
+    'dayPanna dayDigit nightPanna nightDigit jodi status').lean();
+    const mapped = rounds.map((r)=>{
+        var _r_dayOpenPanna, _ref;
+        // ----- DAY LINE -----
+        const dayOpenPanna = (_ref = (_r_dayOpenPanna = r.dayOpenPanna) !== null && _r_dayOpenPanna !== void 0 ? _r_dayOpenPanna : r.dayPanna) !== null && _ref !== void 0 ? _ref : null;
+        var _r_dayOpenDigit, _ref1;
+        const dayOpenDigit = (_ref1 = (_r_dayOpenDigit = r.dayOpenDigit) !== null && _r_dayOpenDigit !== void 0 ? _r_dayOpenDigit : r.dayDigit) !== null && _ref1 !== void 0 ? _ref1 : null;
+        var _r_dayClosePanna;
+        const dayClosePanna = (_r_dayClosePanna = r.dayClosePanna) !== null && _r_dayClosePanna !== void 0 ? _r_dayClosePanna : null;
+        var _r_dayCloseDigit;
+        const dayCloseDigit = (_r_dayCloseDigit = r.dayCloseDigit) !== null && _r_dayCloseDigit !== void 0 ? _r_dayCloseDigit : null;
+        const haveDayOpen = dayOpenDigit !== null && dayOpenDigit !== undefined;
+        const haveDayClose = dayCloseDigit !== null && dayCloseDigit !== undefined;
+        var _r_dayJodi;
+        const dayJodi = haveDayOpen && haveDayClose ? (_r_dayJodi = r.dayJodi) !== null && _r_dayJodi !== void 0 ? _r_dayJodi : "".concat(dayOpenDigit).concat(dayCloseDigit) : null;
+        const dayLineStatus = r.dayLineStatus ? r.dayLineStatus : haveDayOpen ? haveDayClose ? 'CLOSED' : 'OPEN_PUBLISHED' : 'READY';
+        // explicit-time logic (same idea as we described earlier):
+        const legacyDayTime = r.dayTime || null;
+        const explicitDayOpenTime = r.dayOpenTime && r.dayOpenTime !== legacyDayTime ? r.dayOpenTime : null;
+        const explicitDayCloseTime = r.dayCloseTime && r.dayCloseTime !== legacyDayTime ? r.dayCloseTime : null;
+        var _r_nightOpenPanna, _ref2;
+        // ----- NIGHT LINE -----
+        const nightOpenPanna = (_ref2 = (_r_nightOpenPanna = r.nightOpenPanna) !== null && _r_nightOpenPanna !== void 0 ? _r_nightOpenPanna : r.nightPanna) !== null && _ref2 !== void 0 ? _ref2 : null;
+        var _r_nightOpenDigit, _ref3;
+        const nightOpenDigit = (_ref3 = (_r_nightOpenDigit = r.nightOpenDigit) !== null && _r_nightOpenDigit !== void 0 ? _r_nightOpenDigit : r.nightDigit) !== null && _ref3 !== void 0 ? _ref3 : null;
+        var _r_nightClosePanna;
+        const nightClosePanna = (_r_nightClosePanna = r.nightClosePanna) !== null && _r_nightClosePanna !== void 0 ? _r_nightClosePanna : null;
+        var _r_nightCloseDigit;
+        const nightCloseDigit = (_r_nightCloseDigit = r.nightCloseDigit) !== null && _r_nightCloseDigit !== void 0 ? _r_nightCloseDigit : null;
+        const haveNightOpen = nightOpenDigit !== null && nightOpenDigit !== undefined;
+        const haveNightClose = nightCloseDigit !== null && nightCloseDigit !== undefined;
+        var _r_nightJodi;
+        const nightJodi = haveNightOpen && haveNightClose ? (_r_nightJodi = r.nightJodi) !== null && _r_nightJodi !== void 0 ? _r_nightJodi : "".concat(nightOpenDigit).concat(nightCloseDigit) : null;
+        const nightLineStatus = r.nightLineStatus ? r.nightLineStatus : haveNightOpen ? haveNightClose ? 'CLOSED' : 'OPEN_PUBLISHED' : 'READY';
+        const legacyNightTime = r.nightTime || null;
+        const explicitNightOpenTime = r.nightOpenTime && r.nightOpenTime !== legacyNightTime ? r.nightOpenTime : null;
+        const explicitNightCloseTime = r.nightCloseTime && r.nightCloseTime !== legacyNightTime ? r.nightCloseTime : null;
+        // legacy top-level status
+        const topStatus = r.status === 'OPENING_PUBLISHED' ? 'DAY_PUBLISHED' : r.status;
+        return {
+            sessionDate: r.sessionDate,
+            status: topStatus,
+            day: {
+                openPanna: dayOpenPanna,
+                openDigit: dayOpenDigit,
+                closePanna: dayClosePanna,
+                closeDigit: dayCloseDigit,
+                jodi: dayJodi,
+                status: dayLineStatus,
+                // only send if explicitly scheduled
+                openTime: explicitDayOpenTime,
+                closeTime: explicitDayCloseTime
+            },
+            night: {
+                openPanna: nightOpenPanna,
+                openDigit: nightOpenDigit,
+                closePanna: nightClosePanna,
+                closeDigit: nightCloseDigit,
+                jodi: nightJodi,
+                status: nightLineStatus,
+                openTime: explicitNightOpenTime,
+                closeTime: explicitNightCloseTime
+            }
+        };
+    });
+    // allow side=day or side=night for simpler components
+    let items = mapped;
+    if (side === 'day') {
+        items = mapped.map((m)=>({
+                sessionDate: m.sessionDate,
+                ...m.day
+            }));
+    } else if (side === 'night') {
+        items = mapped.map((m)=>({
+                sessionDate: m.sessionDate,
+                ...m.night
+            }));
     }
-    // we DO have something, so build the cell
-    const showClose = haveClose && !closeScheduled;
-    const closed = haveOpen && showClose;
-    var _it_jodi;
-    const center = closed ? (_it_jodi = it.jodi) !== null && _it_jodi !== void 0 ? _it_jodi : "".concat(it.openDigit).concat(it.closeDigit) : '—';
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "relative bg-[#fffdf6] rounded-[6px] border border-black/40 shadow-[inset_0_1px_0_rgba(0,0,0,0.12)] px-1 pt-1 pb-1.5 min-h-[56px] flex items-center justify-center",
-        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "flex items-center justify-center gap-1",
-            children: [
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(PannaColumn, {
-                    panna: it.openPanna
-                }, void 0, false, {
-                    fileName: "[project]/components/DayResultTable.tsx",
-                    lineNumber: 142,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "min-w-[30px] text-center font-extrabold text-[14px] ".concat(closed ? 'text-red-600' : 'text-gray-400'),
-                    children: center
-                }, void 0, false, {
-                    fileName: "[project]/components/DayResultTable.tsx",
-                    lineNumber: 143,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(PannaColumn, {
-                    panna: showClose ? it.closePanna : null
-                }, void 0, false, {
-                    fileName: "[project]/components/DayResultTable.tsx",
-                    lineNumber: 150,
-                    columnNumber: 9
-                }, this)
-            ]
-        }, void 0, true, {
-            fileName: "[project]/components/DayResultTable.tsx",
-            lineNumber: 141,
-            columnNumber: 7
-        }, this)
-    }, void 0, false, {
-        fileName: "[project]/components/DayResultTable.tsx",
-        lineNumber: 140,
-        columnNumber: 5
-    }, this);
-}
-_c3 = DayCell;
-function DateRangeCell(param) {
-    let { start, end } = param;
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "relative bg-[#fffdf6] rounded-[6px] border border-black/40 py-2 flex flex-col items-center justify-center text-[9px] text-yellow-800/90",
-        children: [
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                children: start ? ddmmyy(start) : ''
-            }, void 0, false, {
-                fileName: "[project]/components/DayResultTable.tsx",
-                lineNumber: 160,
-                columnNumber: 7
-            }, this),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "text-black/80 italic",
-                children: "to"
-            }, void 0, false, {
-                fileName: "[project]/components/DayResultTable.tsx",
-                lineNumber: 161,
-                columnNumber: 7
-            }, this),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                children: end ? ddmmyy(end) : ''
-            }, void 0, false, {
-                fileName: "[project]/components/DayResultTable.tsx",
-                lineNumber: 162,
-                columnNumber: 7
-            }, this)
-        ]
-    }, void 0, true, {
-        fileName: "[project]/components/DayResultTable.tsx",
-        lineNumber: 159,
-        columnNumber: 5
-    }, this);
-}
-_c4 = DateRangeCell;
-function DayResultsTable() {
-    _s();
-    const { data } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"])('/api/result/history?weeks=52&side=day', fetcher);
-    if (!data) {
-        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "max-w-5xl mx-auto p-4 text-center text-sm text-yellow-200",
-            children: "Loading day chart…"
-        }, void 0, false, {
-            fileName: "[project]/components/DayResultTable.tsx",
-            lineNumber: 172,
-            columnNumber: 7
-        }, this);
+    // keep old behaviour: if no month/weeks and limit is set, slice from the end
+    if (!month && !weeksRaw && limit && items.length > limit) {
+        items = items.slice(-limit);
     }
-    var _data_items;
-    const filled = fillContinuous((_data_items = data.items) !== null && _data_items !== void 0 ? _data_items : []);
-    const rows = groupIntoWeeks(filled);
-    const today = new Date().toISOString().slice(0, 10);
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
-        className: "max-w-5xl mx-auto px-2 md:px-3 pb-8",
-        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "rounded-md border-[6px] border-yellow-700 bg-[#fffdf6] shadow-[0_2px_10px_rgba(0,0,0,0.25)] overflow-hidden",
-            children: [
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "grid grid-cols-8 bg-yellow-200 border-b border-black/40 text-center font-semibold text-[10px] md:text-[12px] uppercase text-black tracking-wide",
-                    children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "py-1.5 border-r border-black/30",
-                            children: "Date"
-                        }, void 0, false, {
-                            fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 187,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "py-1.5 border-r border-black/30",
-                            children: "Mon"
-                        }, void 0, false, {
-                            fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 188,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "py-1.5 border-r border-black/30",
-                            children: "Tue"
-                        }, void 0, false, {
-                            fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 189,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "py-1.5 border-r border-black/30",
-                            children: "Wed"
-                        }, void 0, false, {
-                            fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 190,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "py-1.5 border-r border-black/30",
-                            children: "Thu"
-                        }, void 0, false, {
-                            fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 191,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "py-1.5 border-r border-black/30",
-                            children: "Fri"
-                        }, void 0, false, {
-                            fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 192,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "py-1.5 border-r border-black/30",
-                            children: "Sat"
-                        }, void 0, false, {
-                            fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 193,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "py-1.5",
-                            children: "Sun"
-                        }, void 0, false, {
-                            fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 194,
-                            columnNumber: 11
-                        }, this)
-                    ]
-                }, void 0, true, {
-                    fileName: "[project]/components/DayResultTable.tsx",
-                    lineNumber: 186,
-                    columnNumber: 9
-                }, this),
-                rows.map((row, weekIdx)=>{
-                    var _row_, _row_1;
-                    const start = (_row_ = row[0]) === null || _row_ === void 0 ? void 0 : _row_.sessionDate;
-                    const end = (_row_1 = row[row.length - 1]) === null || _row_1 === void 0 ? void 0 : _row_1.sessionDate;
-                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "px-2 md:px-3 py-2",
-                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "grid grid-cols-8 gap-1",
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(DateRangeCell, {
-                                        start: start,
-                                        end: end
-                                    }, void 0, false, {
-                                        fileName: "[project]/components/DayResultTable.tsx",
-                                        lineNumber: 204,
-                                        columnNumber: 19
-                                    }, this)
-                                }, void 0, false, {
-                                    fileName: "[project]/components/DayResultTable.tsx",
-                                    lineNumber: 203,
-                                    columnNumber: 17
-                                }, this),
-                                row.map((it, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(DayCell, {
-                                        it: it,
-                                        today: today
-                                    }, "".concat(it.sessionDate, "-").concat(i), false, {
-                                        fileName: "[project]/components/DayResultTable.tsx",
-                                        lineNumber: 207,
-                                        columnNumber: 19
-                                    }, this))
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/components/DayResultTable.tsx",
-                            lineNumber: 202,
-                            columnNumber: 15
-                        }, this)
-                    }, "week-".concat(weekIdx), false, {
-                        fileName: "[project]/components/DayResultTable.tsx",
-                        lineNumber: 201,
-                        columnNumber: 13
-                    }, this);
-                })
-            ]
-        }, void 0, true, {
-            fileName: "[project]/components/DayResultTable.tsx",
-            lineNumber: 184,
-            columnNumber: 7
-        }, this)
-    }, void 0, false, {
-        fileName: "[project]/components/DayResultTable.tsx",
-        lineNumber: 183,
-        columnNumber: 5
-    }, this);
+    return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["NextResponse"].json({
+        items
+    });
 }
-_s(DayResultsTable, "Bw9uScf/xQBWZKhLCWSR33xISM4=", false, function() {
-    return [
-        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$index$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"]
-    ];
-});
-_c5 = DayResultsTable;
-var _c, _c1, _c2, _c3, _c4, _c5;
-__turbopack_context__.k.register(_c, "PannaColumn");
-__turbopack_context__.k.register(_c1, "PlaceholderCell");
-__turbopack_context__.k.register(_c2, "TodayPendingCell");
-__turbopack_context__.k.register(_c3, "DayCell");
-__turbopack_context__.k.register(_c4, "DateRangeCell");
-__turbopack_context__.k.register(_c5, "DayResultsTable");
+_c = GET;
+var _c;
+__turbopack_context__.k.register(_c, "GET");
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(module, globalThis.$RefreshHelpers$);
 }
@@ -1087,4 +1062,4 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 }}),
 }]);
 
-//# sourceMappingURL=_1926a711._.js.map
+//# sourceMappingURL=_0f4047b3._.js.map

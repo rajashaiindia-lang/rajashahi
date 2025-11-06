@@ -150,7 +150,7 @@ export default function AdminHistoryEditor() {
               <th className="py-3 px-3 text-left">Day Close</th>
               <th className="py-3 px-3 text-left">Night Open</th>
               <th className="py-3 px-3 text-left">Night Close</th>
-              <th className="py-3 px-3 text-left">Jodi (D/N)</th>
+           
               <th className="py-3 px-3 text-left">Actions</th>
             </tr>
           </thead>
@@ -231,25 +231,6 @@ export default function AdminHistoryEditor() {
                   />
                 </td>
 
-                {/* JODI */}
-                <td className="py-3 px-3 text-xs text-gray-700">
-                  <div>
-                    <span className="text-gray-500 mr-1">Day:</span>
-                    {r.dayJodi ? (
-                      <span className="font-mono text-blue-700">{r.dayJodi}</span>
-                    ) : (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </div>
-                  <div>
-                    <span className="text-gray-500 mr-1">Night:</span>
-                    {r.nightJodi ? (
-                      <span className="font-mono text-purple-700">{r.nightJodi}</span>
-                    ) : (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </div>
-                </td>
 
                 {/* ACTIONS */}
                 <td className="py-3 px-3">

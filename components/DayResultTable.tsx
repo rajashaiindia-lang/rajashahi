@@ -116,25 +116,24 @@ function isNowBeforeIST(dateStr: string, hhmm?: string | null) {
 function DayCell({ it, today }: { it: LocalItem; today: string }) {
   const haveOpen = it.openDigit != null && it.openPanna != null;
   const haveClose = it.closeDigit != null && it.closePanna != null;
-  const closed = it.status === 'CLOSED' && haveOpen && haveClose;
-
   const isToday = it.sessionDate === today;
 
-  // if today but nothing yet (or scheduled later) → show "-"
-  if (isToday) {
-    const openScheduled = isNowBeforeIST(it.sessionDate, it.openTime);
-    const closeScheduled = isNowBeforeIST(it.sessionDate, it.closeTime);
-    const nothingYet = !haveOpen && !haveClose;
-    if (nothingYet || openScheduled || closeScheduled) {
-      return <TodayPendingCell />;
-    }
+  const openScheduled  = isToday && it.openTime  ? isNowBeforeIST(it.sessionDate, it.openTime)  : false;
+  const closeScheduled = isToday && it.closeTime ? isNowBeforeIST(it.sessionDate, it.closeTime) : false;
+
+  // if we have nothing yet but at least one is scheduled → show pending
+  if (!haveOpen && !haveClose && (openScheduled || closeScheduled)) {
+    return <TodayPendingCell />;
   }
 
-  // past day, no data → show star placeholder
+  // completely missing (older empty day) → stars
   if (it._missing || (!haveOpen && !haveClose)) {
     return <PlaceholderCell />;
   }
 
+  // we DO have something, so build the cell
+  const showClose = haveClose && !closeScheduled;
+  const closed = haveOpen && showClose;
   const center = closed ? it.jodi ?? `${it.openDigit}${it.closeDigit}` : '—';
 
   return (
@@ -145,15 +144,15 @@ function DayCell({ it, today }: { it: LocalItem; today: string }) {
           className={`min-w-[30px] text-center font-extrabold text-[14px] ${
             closed ? 'text-red-600' : 'text-gray-400'
           }`}
-          title={closed ? `Jodi ${center}` : 'Pending'}
         >
           {center}
         </div>
-        <PannaColumn panna={it.closePanna} />
+        <PannaColumn panna={showClose ? it.closePanna : null} />
       </div>
     </div>
   );
 }
+
 
 function DateRangeCell({ start, end }: { start?: string; end?: string }) {
   return (

@@ -60,6 +60,11 @@ export default function AdminPanel() {
   const [dayCloseTime, setDayCloseTime] = useState('');
   const [nightOpenTime, setNightOpenTime] = useState('');
   const [nightCloseTime, setNightCloseTime] = useState('');
+const [dayOpenErr, setDayOpenErr] = useState('');
+const [dayCloseErr, setDayCloseErr] = useState('');
+const [nightOpenErr, setNightOpenErr] = useState('');
+const [nightCloseErr, setNightCloseErr] = useState('');
+const clean3digits = (v: string) => v.replace(/\D/g, '').slice(0, 3);
 
   // load latest once
   useEffect(() => {
@@ -308,39 +313,60 @@ export default function AdminPanel() {
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold text-blue-900 mb-2">Current Results</h2>
 
-              {/* DAY */}
-              <div>
-                <div className="text-sm font-semibold text-blue-800 mb-1">
-                  Day ({dayRound ? dayDate : latestRound?.sessionDate ?? dayDate})
-                </div>
-                <div className="text-3xl font-mono font-bold tracking-wider mb-1 text-gray-900">
-                  {dayLine}
-                </div>
-                <div className="text-lg font-semibold text-gray-900">
-                  Day Jodi:{' '}
-                  <span className="text-blue-900 text-2xl">
-                    {displayDay?.dayJodi ?? '—'}
-                  </span>
-                </div>
-              </div>
+       {/* DAY */}
+<div className="text-center space-y-1 md:space-y-2">
+  <div className="flex flex-wrap items-center justify-center gap-2 text-gray-900 font-mono font-bold text-2xl md:text-3xl tracking-wider">
+    <span>{dayLine}</span>
+
+
+{/* show jodi inline on mobile */}
+<span className="block md:hidden text-lg font-semibold text-gray-800">
+  {displayDay?.dayJodi && (
+    <>
+      &nbsp;Jodi:{' '}
+      <span className="text-blue-800 font-bold">{displayDay.dayJodi}</span>
+    </>
+  )}
+</span>
+
+  </div>
+
+  {/* keep old full-line Jodi on desktop */}
+  <div className="hidden md:block text-lg font-semibold text-gray-900">
+    Day Jodi:{' '}
+    <span className="text-blue-900 text-2xl">
+      {displayDay?.dayJodi ?? '—'}
+    </span>
+  </div>
+</div>
+
 
               <div className="h-px bg-blue-300" />
 
-              {/* NIGHT */}
-              <div>
-                <div className="text-sm font-semibold text-blue-800 mb-1">
-                  Night ({nightRound ? nightDate : latestRound?.sessionDate ?? nightDate})
-                </div>
-                <div className="text-3xl font-mono font-bold tracking-wider mb-1 text-gray-900">
-                  {nightLine}
-                </div>
-                <div className="text-lg font-semibold text-gray-900">
-                  Night Jodi:{' '}
-                  <span className="text-blue-900 text-2xl">
-                    {displayNight?.nightJodi ?? '—'}
-                  </span>
-                </div>
-              </div>
+        {/* NIGHT */}
+<div className="text-center space-y-1 md:space-y-2">
+  <div className="flex flex-wrap items-center justify-center gap-2 text-gray-900 font-mono font-bold text-2xl md:text-3xl tracking-wider">
+    <span>{nightLine}</span>
+
+<span className="block md:hidden text-lg font-semibold text-gray-800">
+  {displayNight?.nightJodi && (
+    <>
+      &nbsp;Jodi:{' '}
+      <span className="text-purple-800 font-bold">{displayNight.nightJodi}</span>
+    </>
+  )}
+</span>
+
+  </div>
+
+  <div className="hidden md:block text-lg font-semibold text-gray-900">
+    Night Jodi:{' '}
+    <span className="text-blue-900 text-2xl">
+      {displayNight?.nightJodi ?? '—'}
+    </span>
+  </div>
+</div>
+
             </div>
           </div>
 
@@ -367,15 +393,27 @@ export default function AdminPanel() {
                   Day Opening Panna (000-999)
                 </label>
                 <div className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    value={dayOpenP}
-                    onChange={e => setDayOpenP(e.target.value)}
-                    maxLength={3}
-                    placeholder={dayOpenDone ? 'Already published' : 'e.g. 123'}
-                    className="flex-1 p-3 border-2 border-gray-300 rounded-lg font-mono text-lg font-bold text-gray-900"
-                    disabled={busy}
-                  />
+                 <input
+  type="text"
+  value={dayOpenP}
+  onChange={e => {
+    const cleaned = clean3digits(e.target.value);
+    setDayOpenP(cleaned);
+    if (e.target.value !== cleaned) {
+      setDayOpenErr('Only 0-9 allowed (max 3)');
+    } else {
+      setDayOpenErr('');
+    }
+  }}
+  maxLength={3}
+  placeholder={dayOpenDone ? 'Already published' : 'e.g. 123'}
+  className="flex-1 p-3 border-2 border-gray-300 rounded-lg font-mono text-lg font-bold text-gray-900"
+  disabled={busy}
+/>
+{dayOpenErr && (
+  <p className="text-xs text-red-600 mt-1">{dayOpenErr}</p>
+)}
+
                   <button
                     onClick={publishDayOpen}
                     disabled={busy}
@@ -408,15 +446,27 @@ export default function AdminPanel() {
                   Day Closing Panna (000-999)
                 </label>
                 <div className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    value={dayCloseP}
-                    onChange={e => setDayCloseP(e.target.value)}
-                    maxLength={3}
-                    placeholder={dayCloseDone ? 'Already published' : 'e.g. 456'}
-                    className="flex-1 p-3 border-2 border-gray-300 rounded-lg font-mono text-lg font-bold text-gray-900"
-                    disabled={busy}
-                  />
+                 <input
+  type="text"
+  value={dayCloseP}
+  onChange={e => {
+    const cleaned = clean3digits(e.target.value);
+    setDayCloseP(cleaned);
+    if (e.target.value !== cleaned) {
+      setDayCloseErr('Only 0-9 allowed (max 3)');
+    } else {
+      setDayCloseErr('');
+    }
+  }}
+  maxLength={3}
+  placeholder={dayCloseDone ? 'Already published' : 'e.g. 456'}
+  className="flex-1 p-3 border-2 border-gray-300 rounded-lg font-mono text-lg font-bold text-gray-900"
+  disabled={busy}
+/>
+{dayCloseErr && (
+  <p className="text-xs text-red-600 mt-1">{dayCloseErr}</p>
+)}
+
                   <button
                     onClick={publishDayClose}
                     disabled={busy}
@@ -463,15 +513,27 @@ export default function AdminPanel() {
                   Night Opening Panna (000-999)
                 </label>
                 <div className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    value={nightOpenP}
-                    onChange={e => setNightOpenP(e.target.value)}
-                    maxLength={3}
-                    placeholder={nightOpenDone ? 'Already published' : 'e.g. 789'}
-                    className="flex-1 p-3 border-2 border-gray-300 rounded-lg font-mono text-lg font-bold text-gray-900"
-                    disabled={busy}
-                  />
+              <input
+  type="text"
+  value={nightOpenP}
+  onChange={e => {
+    const cleaned = clean3digits(e.target.value);
+    setNightOpenP(cleaned);
+    if (e.target.value !== cleaned) {
+      setNightOpenErr('Only 0-9 allowed (max 3)');
+    } else {
+      setNightOpenErr('');
+    }
+  }}
+  maxLength={3}
+  placeholder={nightOpenDone ? 'Already published' : 'e.g. 789'}
+  className="flex-1 p-3 border-2 border-gray-300 rounded-lg font-mono text-lg font-bold text-gray-900"
+  disabled={busy}
+/>
+{nightOpenErr && (
+  <p className="text-xs text-red-600 mt-1">{nightOpenErr}</p>
+)}
+
                   <button
                     onClick={publishNightOpen}
                     disabled={busy}
@@ -503,15 +565,27 @@ export default function AdminPanel() {
                   Night Closing Panna (000-999)
                 </label>
                 <div className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    value={nightCloseP}
-                    onChange={e => setNightCloseP(e.target.value)}
-                    maxLength={3}
-                    placeholder={nightCloseDone ? 'Already published' : 'e.g. 012'}
-                    className="flex-1 p-3 border-2 border-gray-300 rounded-lg font-mono text-lg font-bold text-gray-900"
-                    disabled={busy}
-                  />
+<input
+  type="text"
+  value={nightCloseP}
+  onChange={e => {
+    const cleaned = clean3digits(e.target.value);
+    setNightCloseP(cleaned);
+    if (e.target.value !== cleaned) {
+      setNightCloseErr('Only 0-9 allowed (max 3)');
+    } else {
+      setNightCloseErr('');
+    }
+  }}
+  maxLength={3}
+  placeholder={nightCloseDone ? 'Already published' : 'e.g. 012'}
+  className="flex-1 p-3 border-2 border-gray-300 rounded-lg font-mono text-lg font-bold text-gray-900"
+  disabled={busy}
+/>
+{nightCloseErr && (
+  <p className="text-xs text-red-600 mt-1">{nightCloseErr}</p>
+)}
+
                   <button
                     onClick={publishNightClose}
                     disabled={busy}

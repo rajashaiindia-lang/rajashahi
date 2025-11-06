@@ -103,7 +103,7 @@ function TodayPendingCell() {
     </div>
   );
 }
-
+// client-side helper for optional schedule (you already have this)
 function isNowBeforeIST(dateStr: string, hhmm?: string | null) {
   if (!hhmm) return false;
   const target = new Date(`${dateStr}T${hhmm}:00+05:30`);
@@ -113,38 +113,35 @@ function isNowBeforeIST(dateStr: string, hhmm?: string | null) {
 function NightCell({ it, today }: { it: LocalItem; today: string }) {
   const haveOpen = it.openDigit != null && it.openPanna != null;
   const haveClose = it.closeDigit != null && it.closePanna != null;
-  const closed = it.status === 'CLOSED' && haveOpen && haveClose;
   const isToday = it.sessionDate === today;
 
-  if (isToday) {
-    const openScheduled = isNowBeforeIST(it.sessionDate, it.openTime);
-    const closeScheduled = isNowBeforeIST(it.sessionDate, it.closeTime);
-    const nothingYet = !haveOpen && !haveClose;
-    if (nothingYet || openScheduled || closeScheduled) {
-      return <TodayPendingCell />;
-    }
+  const openScheduled  = isToday && it.openTime  ? isNowBeforeIST(it.sessionDate, it.openTime)  : false;
+  const closeScheduled = isToday && it.closeTime ? isNowBeforeIST(it.sessionDate, it.closeTime) : false;
+
+  if (!haveOpen && !haveClose && (openScheduled || closeScheduled)) {
+    return <TodayPendingCell />;
   }
 
-  // past missing → stars
   if (it._missing || (!haveOpen && !haveClose)) {
     return <PlaceholderCell />;
   }
 
+  const showClose = haveClose && !closeScheduled;
+  const closed = haveOpen && showClose;
   const center = closed ? it.jodi ?? `${it.openDigit}${it.closeDigit}` : '—';
 
   return (
-    <div className="relative bg-[#fffdf6] rounded-[6px] border border-black/40 shadow-[inset_0_1px_0_rgba(0,0,0,0.12)] px-1 pt-1 pb-1.5 min-h-[56px] flex items-center justify-center">
+    <div className="relative bg-[#fffdf6] rounded-[6px] border border-black/40 px-1 pt-1 pb-1.5 min-h-[56px] flex items-center justify-center">
       <div className="flex items-center justify-center gap-1">
         <PannaColumn panna={it.openPanna} />
         <div
           className={`min-w-[30px] text-center font-extrabold text-[14px] ${
-            closed ? 'text-purple-600' : 'text-gray-400'
+            closed ? 'text-purple-700' : 'text-gray-400'
           }`}
-          title={closed ? `Jodi ${center}` : 'Pending'}
         >
           {center}
         </div>
-        <PannaColumn panna={it.closePanna} />
+        <PannaColumn panna={showClose ? it.closePanna : null} />
       </div>
     </div>
   );

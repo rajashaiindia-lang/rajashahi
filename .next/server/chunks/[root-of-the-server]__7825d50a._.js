@@ -357,7 +357,6 @@ function generateRoundId() {
 "[project]/app/api/result/latest/route.ts [app-route] (ecmascript)": ((__turbopack_context__) => {
 "use strict";
 
-// app/api/result/latest/route.ts
 __turbopack_context__.s({
     "GET": ()=>GET
 });
@@ -390,9 +389,14 @@ async function GET(req) {
             status: 404
         });
     }
-    // DAY
-    const dayOpenTooEarly = isNowBeforeIST(round.sessionDate, round.dayOpenTime);
-    const dayCloseTooEarly = isNowBeforeIST(round.sessionDate, round.dayCloseTime);
+    // grab legacy times
+    const legacyDayTime = round.dayTime || null;
+    const legacyNightTime = round.nightTime || null;
+    // ===== DAY =====
+    const dayHasExplicitOpenTime = !!round.dayOpenTime && round.dayOpenTime !== legacyDayTime;
+    const dayHasExplicitCloseTime = !!round.dayCloseTime && round.dayCloseTime !== legacyDayTime;
+    const dayOpenTooEarly = dayHasExplicitOpenTime && isNowBeforeIST(round.sessionDate, round.dayOpenTime);
+    const dayCloseTooEarly = dayHasExplicitCloseTime && isNowBeforeIST(round.sessionDate, round.dayCloseTime);
     const dayOpenPannaRaw = round.dayOpenPanna ?? round.dayPanna ?? null;
     const dayOpenDigitRaw = round.dayOpenDigit ?? round.dayDigit ?? null;
     const dayClosePannaRaw = round.dayClosePanna ?? null;
@@ -405,9 +409,11 @@ async function GET(req) {
     const haveDayClose = dayCloseDigit != null;
     const dayLineStatus = haveDayOpen ? haveDayClose ? 'CLOSED' : 'OPEN_PUBLISHED' : 'READY';
     const dayJodi = haveDayOpen && haveDayClose ? round.dayJodi ?? (0, __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$helpers$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["deriveJodi"])(dayOpenDigit, dayCloseDigit) : null;
-    // NIGHT
-    const nightOpenTooEarly = isNowBeforeIST(round.sessionDate, round.nightOpenTime);
-    const nightCloseTooEarly = isNowBeforeIST(round.sessionDate, round.nightCloseTime);
+    // ===== NIGHT =====
+    const nightHasExplicitOpenTime = !!round.nightOpenTime && round.nightOpenTime !== legacyNightTime;
+    const nightHasExplicitCloseTime = !!round.nightCloseTime && round.nightCloseTime !== legacyNightTime;
+    const nightOpenTooEarly = nightHasExplicitOpenTime && isNowBeforeIST(round.sessionDate, round.nightOpenTime);
+    const nightCloseTooEarly = nightHasExplicitCloseTime && isNowBeforeIST(round.sessionDate, round.nightCloseTime);
     const nightOpenPannaRaw = round.nightOpenPanna ?? round.nightPanna ?? null;
     const nightOpenDigitRaw = round.nightOpenDigit ?? round.nightDigit ?? null;
     const nightClosePannaRaw = round.nightClosePanna ?? null;
@@ -420,6 +426,7 @@ async function GET(req) {
     const haveNightClose = nightCloseDigit != null;
     const nightLineStatus = haveNightOpen ? haveNightClose ? 'CLOSED' : 'OPEN_PUBLISHED' : 'READY';
     const nightJodi = haveNightOpen && haveNightClose ? round.nightJodi ?? (0, __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$helpers$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["deriveJodi"])(nightOpenDigit, nightCloseDigit) : null;
+    // side-specific response
     if (side === 'night') {
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             ok: true,

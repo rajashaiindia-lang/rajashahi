@@ -358,9 +358,8 @@ async function GET(req) {
         lo = _lo;
         hi = _hi;
     } else if (weeksRaw) {
-        // weeks mode (like your previous code)
+        // weeks mode
         const weeks = Math.max(1, Math.min(52, Number(weeksRaw) || 24));
-        // figure out latest sessionDate as end (or use ?end=)
         const latest = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({}).sort({
             sessionDate: -1
         }).select('sessionDate').lean();
@@ -384,23 +383,21 @@ async function GET(req) {
     // pull all needed fields, including the new ones
     const rounds = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Round$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find(filter).sort({
         sessionDate: 1
-    }).select('sessionDate ' + 'dayOpenPanna dayOpenDigit dayClosePanna dayCloseDigit dayJodi dayLineStatus ' + 'nightOpenPanna nightOpenDigit nightClosePanna nightCloseDigit nightJodi nightLineStatus ' + // legacy
+    }).select('sessionDate ' + 'dayOpenPanna dayOpenDigit dayClosePanna dayCloseDigit dayJodi dayLineStatus ' + 'nightOpenPanna nightOpenDigit nightClosePanna nightCloseDigit nightJodi nightLineStatus ' + 'dayOpenTime dayCloseTime nightOpenTime nightCloseTime ' + // <- add times
+    // legacy times
+    'dayTime nightTime ' + // legacy pannas
     'dayPanna dayDigit nightPanna nightDigit jodi status').lean();
-    // now map to a consistent shape
     const mapped = rounds.map((r)=>{
-        // ----- DAY LINE -----
-        // try new fields first, then fall back to legacy
+        // day
         const dayOpenPanna = r.dayOpenPanna ?? r.dayPanna ?? null;
         const dayOpenDigit = r.dayOpenDigit ?? r.dayDigit ?? null;
         const dayClosePanna = r.dayClosePanna ?? null;
         const dayCloseDigit = r.dayCloseDigit ?? null;
-        // if both open+close exist, prefer stored dayJodi, else derive from digits
         const haveDayOpen = dayOpenDigit !== null && dayOpenDigit !== undefined;
         const haveDayClose = dayCloseDigit !== null && dayCloseDigit !== undefined;
         const dayJodi = haveDayOpen && haveDayClose ? r.dayJodi ?? `${dayOpenDigit}${dayCloseDigit}` : null;
-        // a status for day-line, default to READY
         const dayLineStatus = r.dayLineStatus ? r.dayLineStatus : haveDayOpen ? haveDayClose ? 'CLOSED' : 'OPEN_PUBLISHED' : 'READY';
-        // ----- NIGHT LINE -----
+        // night
         const nightOpenPanna = r.nightOpenPanna ?? r.nightPanna ?? null;
         const nightOpenDigit = r.nightOpenDigit ?? r.nightDigit ?? null;
         const nightClosePanna = r.nightClosePanna ?? null;
@@ -409,18 +406,19 @@ async function GET(req) {
         const haveNightClose = nightCloseDigit !== null && nightCloseDigit !== undefined;
         const nightJodi = haveNightOpen && haveNightClose ? r.nightJodi ?? `${nightOpenDigit}${nightCloseDigit}` : null;
         const nightLineStatus = r.nightLineStatus ? r.nightLineStatus : haveNightOpen ? haveNightClose ? 'CLOSED' : 'OPEN_PUBLISHED' : 'READY';
-        // legacy bridge for top-level status (UI that still reads r.status)
-        const topStatus = r.status === 'OPENING_PUBLISHED' ? 'DAY_PUBLISHED' : r.status;
         return {
             sessionDate: r.sessionDate,
-            status: topStatus,
+            status: r.status,
             day: {
                 openPanna: dayOpenPanna,
                 openDigit: dayOpenDigit,
                 closePanna: dayClosePanna,
                 closeDigit: dayCloseDigit,
                 jodi: dayJodi,
-                status: dayLineStatus
+                status: dayLineStatus,
+                // send whatever admin set
+                openTime: r.dayOpenTime ?? null,
+                closeTime: r.dayCloseTime ?? null
             },
             night: {
                 openPanna: nightOpenPanna,
@@ -428,7 +426,9 @@ async function GET(req) {
                 closePanna: nightClosePanna,
                 closeDigit: nightCloseDigit,
                 jodi: nightJodi,
-                status: nightLineStatus
+                status: nightLineStatus,
+                openTime: r.nightOpenTime ?? null,
+                closeTime: r.nightCloseTime ?? null
             }
         };
     });
@@ -445,7 +445,7 @@ async function GET(req) {
                 ...m.night
             }));
     }
-    // keep your old behaviour: if no month/weeks and limit is set, slice from the end
+    // keep old behaviour: if no month/weeks and limit is set, slice from the end
     if (!month && !weeksRaw && limit && items.length > limit) {
         items = items.slice(-limit);
     }

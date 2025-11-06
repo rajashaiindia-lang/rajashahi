@@ -501,6 +501,7 @@ function TodayPendingCell() {
     }, this);
 }
 _c2 = TodayPendingCell;
+// client-side helper for optional schedule (you already have this)
 function isNowBeforeIST(dateStr, hhmm) {
     if (!hhmm) return false;
     const target = new Date("".concat(dateStr, "T").concat(hhmm, ":00+05:30"));
@@ -510,32 +511,29 @@ function NightCell(param) {
     let { it, today } = param;
     const haveOpen = it.openDigit != null && it.openPanna != null;
     const haveClose = it.closeDigit != null && it.closePanna != null;
-    const closed = it.status === 'CLOSED' && haveOpen && haveClose;
     const isToday = it.sessionDate === today;
-    if (isToday) {
-        const openScheduled = isNowBeforeIST(it.sessionDate, it.openTime);
-        const closeScheduled = isNowBeforeIST(it.sessionDate, it.closeTime);
-        const nothingYet = !haveOpen && !haveClose;
-        if (nothingYet || openScheduled || closeScheduled) {
-            return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(TodayPendingCell, {}, void 0, false, {
-                fileName: "[project]/components/NightResultTable.tsx",
-                lineNumber: 124,
-                columnNumber: 14
-            }, this);
-        }
-    }
-    // past missing → stars
-    if (it._missing || !haveOpen && !haveClose) {
-        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(PlaceholderCell, {}, void 0, false, {
+    const openScheduled = isToday && it.openTime ? isNowBeforeIST(it.sessionDate, it.openTime) : false;
+    const closeScheduled = isToday && it.closeTime ? isNowBeforeIST(it.sessionDate, it.closeTime) : false;
+    if (!haveOpen && !haveClose && (openScheduled || closeScheduled)) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(TodayPendingCell, {}, void 0, false, {
             fileName: "[project]/components/NightResultTable.tsx",
-            lineNumber: 130,
+            lineNumber: 122,
             columnNumber: 12
         }, this);
     }
+    if (it._missing || !haveOpen && !haveClose) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(PlaceholderCell, {}, void 0, false, {
+            fileName: "[project]/components/NightResultTable.tsx",
+            lineNumber: 126,
+            columnNumber: 12
+        }, this);
+    }
+    const showClose = haveClose && !closeScheduled;
+    const closed = haveOpen && showClose;
     var _it_jodi;
     const center = closed ? (_it_jodi = it.jodi) !== null && _it_jodi !== void 0 ? _it_jodi : "".concat(it.openDigit).concat(it.closeDigit) : '—';
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "relative bg-[#fffdf6] rounded-[6px] border border-black/40 shadow-[inset_0_1px_0_rgba(0,0,0,0.12)] px-1 pt-1 pb-1.5 min-h-[56px] flex items-center justify-center",
+        className: "relative bg-[#fffdf6] rounded-[6px] border border-black/40 px-1 pt-1 pb-1.5 min-h-[56px] flex items-center justify-center",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "flex items-center justify-center gap-1",
             children: [
@@ -543,34 +541,33 @@ function NightCell(param) {
                     panna: it.openPanna
                 }, void 0, false, {
                     fileName: "[project]/components/NightResultTable.tsx",
-                    lineNumber: 138,
+                    lineNumber: 136,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "min-w-[30px] text-center font-extrabold text-[14px] ".concat(closed ? 'text-purple-600' : 'text-gray-400'),
-                    title: closed ? "Jodi ".concat(center) : 'Pending',
+                    className: "min-w-[30px] text-center font-extrabold text-[14px] ".concat(closed ? 'text-purple-700' : 'text-gray-400'),
                     children: center
                 }, void 0, false, {
                     fileName: "[project]/components/NightResultTable.tsx",
-                    lineNumber: 139,
+                    lineNumber: 137,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(PannaColumn, {
-                    panna: it.closePanna
+                    panna: showClose ? it.closePanna : null
                 }, void 0, false, {
                     fileName: "[project]/components/NightResultTable.tsx",
-                    lineNumber: 147,
+                    lineNumber: 144,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/NightResultTable.tsx",
-            lineNumber: 137,
+            lineNumber: 135,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/NightResultTable.tsx",
-        lineNumber: 136,
+        lineNumber: 134,
         columnNumber: 5
     }, this);
 }
@@ -584,7 +581,7 @@ function DateRangeCell(param) {
                 children: start ? ddmmyy(start) : ''
             }, void 0, false, {
                 fileName: "[project]/components/NightResultTable.tsx",
-                lineNumber: 156,
+                lineNumber: 153,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -592,20 +589,20 @@ function DateRangeCell(param) {
                 children: "to"
             }, void 0, false, {
                 fileName: "[project]/components/NightResultTable.tsx",
-                lineNumber: 157,
+                lineNumber: 154,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 children: end ? ddmmyy(end) : ''
             }, void 0, false, {
                 fileName: "[project]/components/NightResultTable.tsx",
-                lineNumber: 158,
+                lineNumber: 155,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/NightResultTable.tsx",
-        lineNumber: 155,
+        lineNumber: 152,
         columnNumber: 5
     }, this);
 }
@@ -619,7 +616,7 @@ function NightResultsTable() {
             children: "Loading night chart…"
         }, void 0, false, {
             fileName: "[project]/components/NightResultTable.tsx",
-            lineNumber: 168,
+            lineNumber: 165,
             columnNumber: 7
         }, this);
     }
@@ -640,7 +637,7 @@ function NightResultsTable() {
                             children: "Date"
                         }, void 0, false, {
                             fileName: "[project]/components/NightResultTable.tsx",
-                            lineNumber: 183,
+                            lineNumber: 180,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -648,7 +645,7 @@ function NightResultsTable() {
                             children: "Mon"
                         }, void 0, false, {
                             fileName: "[project]/components/NightResultTable.tsx",
-                            lineNumber: 184,
+                            lineNumber: 181,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -656,7 +653,7 @@ function NightResultsTable() {
                             children: "Tue"
                         }, void 0, false, {
                             fileName: "[project]/components/NightResultTable.tsx",
-                            lineNumber: 185,
+                            lineNumber: 182,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -664,7 +661,7 @@ function NightResultsTable() {
                             children: "Wed"
                         }, void 0, false, {
                             fileName: "[project]/components/NightResultTable.tsx",
-                            lineNumber: 186,
+                            lineNumber: 183,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -672,7 +669,7 @@ function NightResultsTable() {
                             children: "Thu"
                         }, void 0, false, {
                             fileName: "[project]/components/NightResultTable.tsx",
-                            lineNumber: 187,
+                            lineNumber: 184,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -680,7 +677,7 @@ function NightResultsTable() {
                             children: "Fri"
                         }, void 0, false, {
                             fileName: "[project]/components/NightResultTable.tsx",
-                            lineNumber: 188,
+                            lineNumber: 185,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -688,7 +685,7 @@ function NightResultsTable() {
                             children: "Sat"
                         }, void 0, false, {
                             fileName: "[project]/components/NightResultTable.tsx",
-                            lineNumber: 189,
+                            lineNumber: 186,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -696,13 +693,13 @@ function NightResultsTable() {
                             children: "Sun"
                         }, void 0, false, {
                             fileName: "[project]/components/NightResultTable.tsx",
-                            lineNumber: 190,
+                            lineNumber: 187,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/NightResultTable.tsx",
-                    lineNumber: 182,
+                    lineNumber: 179,
                     columnNumber: 9
                 }, this),
                 rows.map((row, weekIdx)=>{
@@ -720,12 +717,12 @@ function NightResultsTable() {
                                         end: end
                                     }, void 0, false, {
                                         fileName: "[project]/components/NightResultTable.tsx",
-                                        lineNumber: 200,
+                                        lineNumber: 197,
                                         columnNumber: 19
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/NightResultTable.tsx",
-                                    lineNumber: 199,
+                                    lineNumber: 196,
                                     columnNumber: 17
                                 }, this),
                                 row.map((it, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(NightCell, {
@@ -733,30 +730,30 @@ function NightResultsTable() {
                                         today: today
                                     }, "".concat(it.sessionDate, "-").concat(i), false, {
                                         fileName: "[project]/components/NightResultTable.tsx",
-                                        lineNumber: 203,
+                                        lineNumber: 200,
                                         columnNumber: 19
                                     }, this))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/NightResultTable.tsx",
-                            lineNumber: 198,
+                            lineNumber: 195,
                             columnNumber: 15
                         }, this)
                     }, "week-".concat(weekIdx), false, {
                         fileName: "[project]/components/NightResultTable.tsx",
-                        lineNumber: 197,
+                        lineNumber: 194,
                         columnNumber: 13
                     }, this);
                 })
             ]
         }, void 0, true, {
             fileName: "[project]/components/NightResultTable.tsx",
-            lineNumber: 180,
+            lineNumber: 177,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/NightResultTable.tsx",
-        lineNumber: 179,
+        lineNumber: 176,
         columnNumber: 5
     }, this);
 }
