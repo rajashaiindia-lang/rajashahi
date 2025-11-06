@@ -109,30 +109,34 @@ function isNowBeforeIST(dateStr: string, hhmm?: string | null) {
   const target = new Date(`${dateStr}T${hhmm}:00+05:30`);
   return new Date() < target;
 }
-
 function DayCell({ it, today }: { it: LocalItem; today: string }) {
   const haveOpen = it.openDigit != null && it.openPanna != null;
   const haveClose = it.closeDigit != null && it.closePanna != null;
-  const isToday = it.sessionDate === today;
 
-  const openScheduled  = isToday && it.openTime  ? isNowBeforeIST(it.sessionDate, it.openTime)  : false;
-  const closeScheduled = isToday && it.closeTime ? isNowBeforeIST(it.sessionDate, it.closeTime) : false;
+  // check against the sessionDate of THIS row, not just "today"
+  const openScheduled  = it.openTime  ? isNowBeforeIST(it.sessionDate, it.openTime)  : false;
+  const closeScheduled = it.closeTime ? isNowBeforeIST(it.sessionDate, it.closeTime) : false;
 
+  // if we have nothing yet but at least one is scheduled → show pending cell
   if (!haveOpen && !haveClose && (openScheduled || closeScheduled)) {
     return <TodayPendingCell />;
   }
 
+  // completely missing (older empty day) → stars
   if (it._missing || (!haveOpen && !haveClose)) {
     return <PlaceholderCell />;
   }
 
+  // we DO have something
   const showClose = haveClose && !closeScheduled;
   const closed = haveOpen && showClose;
+
+  // jodi must not be shown until close is allowed
   const center = closed ? it.jodi ?? `${it.openDigit}${it.closeDigit}` : '—';
 
   return (
     <div className="relative bg-[#fffdf6] rounded-[6px] border border-black/40 shadow-[inset_0_1px_0_rgba(0,0,0,0.12)] px-1 pt-1 pb-1.5 min-h-[64px] flex items-center justify-center">
-      {/* desktop layout (your old one) */}
+      {/* desktop layout */}
       <div className="hidden md:flex items-center justify-center gap-1">
         <PannaColumn panna={it.openPanna} />
         <div
@@ -174,6 +178,7 @@ function DayCell({ it, today }: { it: LocalItem; today: string }) {
     </div>
   );
 }
+
 
 function DateRangeCell({ start, end }: { start?: string; end?: string }) {
   return (
