@@ -23,34 +23,32 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: 'No round' }, { status: 404 });
   }
 
-  // grab legacy times
+  // legacy times
   const legacyDayTime = round.dayTime || null;
   const legacyNightTime = round.nightTime || null;
 
+  //
   // ===== DAY =====
-  const dayHasExplicitOpenTime =
-    !!round.dayOpenTime && round.dayOpenTime !== legacyDayTime;
+  //
   const dayHasExplicitCloseTime =
     !!round.dayCloseTime && round.dayCloseTime !== legacyDayTime;
 
-  const dayOpenTooEarly =
-    dayHasExplicitOpenTime &&
-    isNowBeforeIST(round.sessionDate, round.dayOpenTime);
+  // OPEN: always show whatever you have (NO time gating)
+  const dayOpenPanna = round.dayOpenPanna ?? round.dayPanna ?? null;
+  const dayOpenDigit = round.dayOpenDigit ?? round.dayDigit ?? null;
+
+  // CLOSE: keep timing logic
   const dayCloseTooEarly =
     dayHasExplicitCloseTime &&
     isNowBeforeIST(round.sessionDate, round.dayCloseTime);
 
-  const dayOpenPannaRaw  = round.dayOpenPanna  ?? round.dayPanna ?? null;
-  const dayOpenDigitRaw  = round.dayOpenDigit  ?? round.dayDigit ?? null;
   const dayClosePannaRaw = round.dayClosePanna ?? null;
   const dayCloseDigitRaw = round.dayCloseDigit ?? null;
 
-  const dayOpenPanna  = dayOpenTooEarly  ? null : dayOpenPannaRaw;
-  const dayOpenDigit  = dayOpenTooEarly  ? null : dayOpenDigitRaw;
   const dayClosePanna = dayCloseTooEarly ? null : dayClosePannaRaw;
   const dayCloseDigit = dayCloseTooEarly ? null : dayCloseDigitRaw;
 
-  const haveDayOpen  = dayOpenDigit  != null;
+  const haveDayOpen = dayOpenDigit != null;
   const haveDayClose = dayCloseDigit != null;
 
   const dayLineStatus =
@@ -58,33 +56,31 @@ export async function GET(req: Request) {
 
   const dayJodi =
     haveDayOpen && haveDayClose
-      ? (round.dayJodi ?? (deriveJodi(dayOpenDigit!, dayCloseDigit!) as string))
+      ? round.dayJodi ?? (deriveJodi(dayOpenDigit!, dayCloseDigit!) as string)
       : null;
 
+  //
   // ===== NIGHT =====
-  const nightHasExplicitOpenTime =
-    !!round.nightOpenTime && round.nightOpenTime !== legacyNightTime;
+  //
   const nightHasExplicitCloseTime =
     !!round.nightCloseTime && round.nightCloseTime !== legacyNightTime;
 
-  const nightOpenTooEarly =
-    nightHasExplicitOpenTime &&
-    isNowBeforeIST(round.sessionDate, round.nightOpenTime);
+  // OPEN: always show
+  const nightOpenPanna = round.nightOpenPanna ?? round.nightPanna ?? null;
+  const nightOpenDigit = round.nightOpenDigit ?? round.nightDigit ?? null;
+
+  // CLOSE: keep timing logic
   const nightCloseTooEarly =
     nightHasExplicitCloseTime &&
     isNowBeforeIST(round.sessionDate, round.nightCloseTime);
 
-  const nightOpenPannaRaw  = round.nightOpenPanna  ?? round.nightPanna ?? null;
-  const nightOpenDigitRaw  = round.nightOpenDigit  ?? round.nightDigit ?? null;
   const nightClosePannaRaw = round.nightClosePanna ?? null;
   const nightCloseDigitRaw = round.nightCloseDigit ?? null;
 
-  const nightOpenPanna  = nightOpenTooEarly  ? null : nightOpenPannaRaw;
-  const nightOpenDigit  = nightOpenTooEarly  ? null : nightOpenDigitRaw;
   const nightClosePanna = nightCloseTooEarly ? null : nightClosePannaRaw;
   const nightCloseDigit = nightCloseTooEarly ? null : nightCloseDigitRaw;
 
-  const haveNightOpen  = nightOpenDigit  != null;
+  const haveNightOpen = nightOpenDigit != null;
   const haveNightClose = nightCloseDigit != null;
 
   const nightLineStatus =
@@ -92,7 +88,7 @@ export async function GET(req: Request) {
 
   const nightJodi =
     haveNightOpen && haveNightClose
-      ? (round.nightJodi ?? (deriveJodi(nightOpenDigit!, nightCloseDigit!) as string))
+      ? round.nightJodi ?? (deriveJodi(nightOpenDigit!, nightCloseDigit!) as string)
       : null;
 
   // side-specific response
@@ -109,6 +105,7 @@ export async function GET(req: Request) {
     });
   }
 
+  // default: day
   return NextResponse.json({
     ok: true,
     sessionDate: round.sessionDate,
